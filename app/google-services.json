@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "190947103621",
+    "project_id": "xdlolwtf",
+    "storage_bucket": "xdlolwtf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:190947103621:android:5791b2e57dd0dc7cb1aaec",
+        "android_client_info": {
+          "package_name": "com.twit.multiplayer_test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "190947103621-cu8937m30t4tg0i1bc08alc28takvq3q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApSDrDUNeny0p_YrkV0mCTo-IWgxRunp4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "190947103621-cu8937m30t4tg0i1bc08alc28takvq3q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
