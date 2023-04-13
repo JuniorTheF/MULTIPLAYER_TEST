@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'com.twit.multiplayer_test'
-    compileSdk 33
+    compileSdk 28
 
     defaultConfig {
         applicationId "com.twit.multiplayer_test"
         minSdk 21
-        targetSdk 33
+        targetSdk 28
         versionCode 1
         versionName "1.0"
 
