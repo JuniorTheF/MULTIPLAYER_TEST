@@ -3,15 +3,22 @@ package com.twit.multiplayer_test;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Shader;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -19,75 +26,103 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.twit.multiplayer_test.R;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
-
-    EditText editText;
-    Button button;
-
-    String playerName;
-
     FirebaseDatabase database;
-    DatabaseReference playerRef;
+    private DatabaseReference mDatabase;
 
-
+    LinearLayout ll;
+    EditText et;
+    Button btn;
+    Integer last;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
+        ll = (LinearLayout) findViewById(R.id.messagesHolder);
+        et = findViewById(R.id.message);
+        btn = findViewById(R.id.submit_message);
 
-        editText = findViewById(R.id.editTextTextPersonName);
-        button = findViewById(R.id.button_login);
+        mDatabase.child("messages").child("m1").setValue("cringe1");
+        mDatabase.child("messages").child("m2").setValue("cringe2");
+        mDatabase.child("messages").child("m4").setValue("cringe4");
+        mDatabase.child("messages").child("m3").setValue("cringe3");
 
-        database = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/");
 
-        SharedPreferences preferences = getSharedPreferences("PREFS", 0);
-        playerName = preferences.getString("playerName", "");
-        DatabaseReference myRef = database.getReference("message");
-        myRef.setValue("Hello, World!");
-        if (!playerName.equals("")) {
-            playerRef = database.getReference("players/" + playerName);
-            addEventListener();
-            playerRef.setValue("");
-        }
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                 playerName = editText.getText().toString();
-                 editText.setText("");
-                 if (!playerName.equals("")) {
-                     button.setText("LOGGING IN");
-                     button.setEnabled(false);
-                     playerRef = database.getReference("players");
-                     addEventListener();
-                     playerRef.setValue(playerName);
-                 }
-            }
-        });
-    }
-    private void addEventListener() {
-        playerRef.addValueEventListener(new ValueEventListener() {
+        mDatabase.child("messages").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!playerName.equals("")) {
-                    SharedPreferences preferences = getSharedPreferences("PREFS", 0);
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("playerName", playerName);
-                    editor.apply();
-                    System.out.println(playerName);
-//                    startActivity(new Intent(getApplicationContext(), MainActivity2.class));
-//                    finish();
+                ll.removeAllViews();
+                for (DataSnapshot q: snapshot.getChildren()){
+                    ll.addView(createTextView(String.valueOf(q.getValue())));
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                button.setText("LOG IN");
-                button.setEnabled(true);
-                Toast.makeText(MainActivity.this, "err", Toast.LENGTH_SHORT).show();
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w("TAG", "loadPost:onCancelled", databaseError.toException());
             }
         });
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDatabase.child("messages").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        ArrayList<Message> mass = new ArrayList<>();
+                        for (DataSnapshot q: task.getResult().getChildren()){
+                            mass.add(new Message(q.getKey(), String.valueOf(q.getValue())));
+                        }
+                        last = Integer.valueOf((mass.get(mass.size()-1).getKey()).substring(1));
+                        mDatabase.child("messages").child("m"+(last+1)).setValue(et.getText().toString());
+                    }
+                });
+
+            }
+        });
+
+
+
+
     }
+
+
+    private TextView createTextView(String message){
+        TextView tv = new TextView(this);
+        tv.setText(message);
+        tv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        return tv;
+    }
+}
+
+class Message{
+    String key;
+    String value;
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    Message(String key, String value){
+        this.key = key;
+        this.value = value;
+    }
+
 
 }
