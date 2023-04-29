@@ -14,7 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Enter message" />
+        android:hint="Enter message"
+        android:inputType="text" />
 
     <Button
         android:id="@+id/submit_message"
@@ -24,11 +25,8 @@
         android:layout_marginTop="100dp"
         android:text="submit" />
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_messages"
         android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:layout_height="wrap_content"
-        android:id="@+id/messagesHolder">
-
-    </LinearLayout>
+        android:layout_height="wrap_content" />
 </LinearLayout>

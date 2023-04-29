@@ -2,6 +2,8 @@ package com.twit.multiplayer_test;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -33,33 +36,36 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase database;
     private DatabaseReference mDatabase;
 
-    LinearLayout ll;
+    RecyclerView rv;
+    MessagesAdapter ma;
+    ArrayList<Message> messages = new ArrayList<Message>();
+    ArrayList<Integer> proceeded = new ArrayList<Integer>();
     EditText et;
     Button btn;
-    Integer last;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
-        ll = (LinearLayout) findViewById(R.id.messagesHolder);
+        rv = findViewById(R.id.rv_messages);
+        ma = new MessagesAdapter(messages);
+        rv.setAdapter(ma);
+        rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         et = findViewById(R.id.message);
         btn = findViewById(R.id.submit_message);
-
-        mDatabase.child("messages").child("m1").setValue("cringe1");
-        mDatabase.child("messages").child("m2").setValue("cringe2");
-        mDatabase.child("messages").child("m4").setValue("cringe4");
-        mDatabase.child("messages").child("m3").setValue("cringe3");
-
 
         mDatabase.child("messages").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ll.removeAllViews();
+
                 for (DataSnapshot q: snapshot.getChildren()){
-                    ll.addView(createTextView(String.valueOf(q.getValue())));
+                    if (!proceeded.contains(Integer.parseInt(q.getKey().toString()))){
+                        messages.add(new Message(Integer.parseInt(q.getKey()), String.valueOf(q.getValue())));
+                        proceeded.add(Integer.parseInt(q.getKey()));
+                    }
                 }
+                ma.notifyDataSetChanged();
+
             }
 
             @Override
@@ -73,41 +79,25 @@ public class MainActivity extends AppCompatActivity {
                 mDatabase.child("messages").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        ArrayList<Message> mass = new ArrayList<>();
-                        for (DataSnapshot q: task.getResult().getChildren()){
-                            mass.add(new Message(q.getKey(), String.valueOf(q.getValue())));
-                        }
-                        last = Integer.valueOf((mass.get(mass.size()-1).getKey()).substring(1));
-                        mDatabase.child("messages").child("m"+(last+1)).setValue(et.getText().toString());
+                        Long last = task.getResult().getChildrenCount();
+                        mDatabase.child("messages").child(""+(last+1)).setValue(et.getText().toString());
                     }
                 });
 
             }
         });
-
-
-
-
-    }
-
-
-    private TextView createTextView(String message){
-        TextView tv = new TextView(this);
-        tv.setText(message);
-        tv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        return tv;
     }
 }
 
 class Message{
-    String key;
+    Integer key;
     String value;
 
-    public String getKey() {
+    public Integer getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(Integer key) {
         this.key = key;
     }
 
@@ -119,10 +109,22 @@ class Message{
         this.value = value;
     }
 
-    Message(String key, String value){
+    Message(Integer key, String value){
         this.key = key;
         this.value = value;
     }
 
+    Message(Message msg){
+        this.key = msg.getKey();
+        this.value = msg.getValue();
+    }
 
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "key=" + key +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }
