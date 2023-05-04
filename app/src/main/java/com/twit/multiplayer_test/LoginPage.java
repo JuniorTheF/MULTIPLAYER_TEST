@@ -3,6 +3,9 @@ package com.twit.multiplayer_test;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +18,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class LoginPage extends AppCompatActivity {
+
     FirebaseDatabase database;
     private DatabaseReference mDatabase;
 
@@ -24,27 +28,47 @@ public class LoginPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_page);
-        mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
-        login = findViewById(R.id.login);
-        sign_in = findViewById(R.id.sign_in);
+        Context ctx = getApplicationContext();
+        SharedPreferences sp = ctx.getSharedPreferences("auth_data", MODE_PRIVATE);
+        SharedPreferences.Editor spe = sp.edit();
+        String userLogin = sp.getString("userLogin", null);
+        String userId = sp.getString("userId", null);
+        Intent lobbyPage = new Intent(this, MainActivity.class);
+        System.out.println(userId + " " + userLogin);
+      if (userId == null || userLogin == null){
+            mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
+//            header = findViewById(R.id.)
+            getActionBar().setTitle(userId);
+            login = findViewById(R.id.login);
+            sign_in = findViewById(R.id.sign_in);
+            sign_in.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mDatabase.child("players").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            Long last = task.getResult().getChildrenCount();
+                            int userId = generateId();
+                            mDatabase.child("players").child("" + (last + 1)).child("username").setValue(login.getText().toString());
+                            mDatabase.child("players").child("" + (last + 1)).child("id").setValue(userId);
+                            mDatabase.child("players").child("" + (last + 1)).child("status").setValue("idle");
+                            spe.putString("userLogin", login.getText().toString());
+                            spe.putString("userId", String.valueOf(userId));
+                            spe.commit();
+                            startActivity(lobbyPage);
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            startActivity(lobbyPage);
+        }
 
-        sign_in.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mDatabase.child("players").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        Long last = task.getResult().getChildrenCount();
-                        mDatabase.child("players").child("" + (last + 1)).child("username").setValue(login.getText().toString());
-                        mDatabase.child("players").child("" + (last + 1)).child("id").setValue(generateId());
-                    }
-                });
-            }
-        });
+
     }
 
     protected int generateId() {
         return ((Double) (Math.random()*10000.)).intValue();
     }
-
 };

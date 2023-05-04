@@ -46,6 +46,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Context ctx = getApplicationContext();
+        SharedPreferences sp = ctx.getSharedPreferences("auth_data", MODE_PRIVATE);
+        String userId = sp.getString("userId", null);
+        String userLogin = sp.getString("userLogin", null);
+        setTitle(userLogin + "#" + userId);
         mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
         rv = findViewById(R.id.rv_messages);
         ma = new MessagesAdapter(messages);
