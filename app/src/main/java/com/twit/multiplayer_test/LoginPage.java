@@ -35,10 +35,9 @@ public class LoginPage extends AppCompatActivity {
         String userId = sp.getString("userId", null);
         Intent lobbyPage = new Intent(this, MainActivity.class);
         System.out.println(userId + " " + userLogin);
+        setTitle("MVP KM+TIM00TIM");
       if (userId == null || userLogin == null){
             mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
-//            header = findViewById(R.id.)
-            getActionBar().setTitle(userId);
             login = findViewById(R.id.login);
             sign_in = findViewById(R.id.sign_in);
             sign_in.setOnClickListener(new View.OnClickListener() {
