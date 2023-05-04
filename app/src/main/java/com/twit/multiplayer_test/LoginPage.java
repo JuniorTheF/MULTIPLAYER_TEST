@@ -33,12 +33,11 @@ public class LoginPage extends AppCompatActivity {
         SharedPreferences.Editor spe = sp.edit();
         String userLogin = sp.getString("userLogin", null);
         String userId = sp.getString("userId", null);
-        Intent lobbyPage = new Intent(this, MainActivity.class);
+        Intent lobbyPage = new Intent(this, LobbyPage.class);
         System.out.println(userId + " " + userLogin);
       if (userId == null || userLogin == null){
             mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
 //            header = findViewById(R.id.)
-            getActionBar().setTitle(userId);
             login = findViewById(R.id.login);
             sign_in = findViewById(R.id.sign_in);
             sign_in.setOnClickListener(new View.OnClickListener() {
@@ -51,7 +50,6 @@ public class LoginPage extends AppCompatActivity {
                             int userId = generateId();
                             mDatabase.child("players").child("" + (last + 1)).child("username").setValue(login.getText().toString());
                             mDatabase.child("players").child("" + (last + 1)).child("id").setValue(userId);
-                            mDatabase.child("players").child("" + (last + 1)).child("status").setValue("idle");
                             spe.putString("userLogin", login.getText().toString());
                             spe.putString("userId", String.valueOf(userId));
                             spe.commit();
