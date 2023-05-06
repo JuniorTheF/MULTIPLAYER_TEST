@@ -4,26 +4,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-class Lobby{
-    String lobby_name;
-    Integer max_members;
-    TreeSet<String> members;
-    Lobby(Lobby l){
-        this.lobby_name = l.lobby_name;
-        this.max_members = l.max_members;
-        this.members = l.members;
-    }
-    Lobby(Integer max, TreeSet<String> members, String lobby_name){
-        this.lobby_name = lobby_name;
-        this.members = members;
-        this.max_members = max;
-    }
-}
 
-class Lobby2 {
+class Lobby {
+
+    Lobby(){};
+
+    public Lobby(String hostName, List<String>members, String name, String hostId, String maxCount, String number){
+        this.hostName = hostName;
+        this.members = members;
+        this.name = name;
+        this.hostId = hostId;
+        this.maxCount = maxCount;
+        this.number = number;
+    }
 
 
     private String hostId;
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    private String number;
 
     private String hostName;
 

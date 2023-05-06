@@ -9,14 +9,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 public class LobbyAdapter extends RecyclerView.Adapter<LobbyAdapter.ViewHolder> {
 
     private List<Lobby> lobbies;
+    OnItemCLickListener listener;
 
-    LobbyAdapter(List<Lobby> lobbies) {
+    LobbyAdapter(List<Lobby> lobbies, OnItemCLickListener listener) {
         this.lobbies = lobbies;
+        this.listener = listener;
     }
 
     @NonNull
@@ -25,6 +29,12 @@ public class LobbyAdapter extends RecyclerView.Adapter<LobbyAdapter.ViewHolder> 
         Context ctx = parent.getContext();
         LayoutInflater inf = LayoutInflater.from(ctx);
         View lobbiesView = inf.inflate(R.layout.lobby_recycler_view, parent, false);
+        lobbiesView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.onItemClick(view);
+            }
+        });
         ViewHolder vh = new ViewHolder(lobbiesView);
         return vh;
     }
@@ -32,16 +42,20 @@ public class LobbyAdapter extends RecyclerView.Adapter<LobbyAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull LobbyAdapter.ViewHolder holder, int position) {
         Lobby lobbyToView = lobbies.get(position);
+
         TextView members_count = holder.members_count;
-        members_count.setText(lobbyToView.members+"/"+lobbyToView.max_members);
+        members_count.setText(lobbyToView.getMembers().size()+"/"+lobbyToView.getMaxCount());
         TextView members = holder.members;
         String toSet = "";
-        for (String q: lobbyToView.members){
+        for (String q: lobbyToView.getMembers()){
             toSet += q +"\n";
         }
         members.setText(toSet);
         TextView lobbyName = holder.lobbyName;
-        lobbyName.setText(lobbyToView.lobby_name);
+        lobbyName.setText(lobbyToView.getName());
+        TextView number = holder.number;
+        number.setText(lobbyToView.getNumber());
+
     }
 
     @Override
@@ -53,9 +67,11 @@ public class LobbyAdapter extends RecyclerView.Adapter<LobbyAdapter.ViewHolder> 
         TextView members_count;
         TextView members;
         TextView lobbyName;
+        TextView number;
 
         public ViewHolder(View view) {
             super(view);
+            number = view.findViewById(R.id.rv_number);
             members_count = view.findViewById(R.id.rv_members_count);
             members = view.findViewById(R.id.rv_members);
             lobbyName = view.findViewById(R.id.rv_lobby_name);
@@ -63,3 +79,4 @@ public class LobbyAdapter extends RecyclerView.Adapter<LobbyAdapter.ViewHolder> 
 
     }
 }
+

@@ -8,29 +8,25 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-
-import org.w3c.dom.Text;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -38,7 +34,7 @@ import java.util.Map;
 public class LobbyPage extends AppCompatActivity {
 
     LobbyAdapter lobbyAdapter;
-    ArrayList<Lobby> lobbies;
+    ArrayList<Lobby> lobbies = new ArrayList<Lobby>();
     private DatabaseReference mDatabase;
     Integer numberOfPlayers = 4;
     String lobbyNumber;
@@ -48,7 +44,17 @@ public class LobbyPage extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby_page);
+        SharedPreferences sp = getApplicationContext().getSharedPreferences("auth_data", MODE_PRIVATE);
         RecyclerView recyclerView = findViewById(R.id.rv_lobbies);
+        lobbyAdapter = new LobbyAdapter(lobbies, new OnItemCLickListener() {
+            @Override
+            public void onItemClick(View view) {
+                mDatabase.child("lobby").child(((TextView)view.findViewById(R.id.rv_number)).getText().toString()).child("members").child(((TextView)view.findViewById(R.id.rv_members_count)).getText().toString().substring(0,1)).setValue(sp.getString("userLogin", null) + "#" + sp.getString("userId", null));
+                startActivity(new Intent(LobbyPage.this, LobbyWaitPlayer.class));
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        recyclerView.setAdapter(lobbyAdapter);
         Toolbar tb = findViewById(R.id.toolbar);
         setSupportActionBar(tb);
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -56,7 +62,7 @@ public class LobbyPage extends AppCompatActivity {
         getSupportActionBar().setCustomView(R.layout.toolbar);
         TextView tbTextView = tb.findViewById(R.id.toolbar_textview);
         Button tbButton = tb.findViewById(R.id.toolbar_button);
-        SharedPreferences sp = getApplicationContext().getSharedPreferences("auth_data", MODE_PRIVATE);
+
         SharedPreferences.Editor spe = sp.edit();
         tbTextView.setText(sp.getString("userLogin", null)+"#"+sp.getString("userId", null));
         tbTextView.setOnClickListener(new View.OnClickListener() {
@@ -114,12 +120,17 @@ public class LobbyPage extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<DataSnapshot> task) {
                                 lobbyNumber = "" + LoginPage.generateId();
-                                mDatabase.child("lobby").child(lobbyNumber).child("name").setValue(sp.getString("userLogin", null) + "#" + sp.getString("userId", null) +"’s lobby");
-                                mDatabase.child("lobby").child(lobbyNumber).child("maxCount").setValue(numberOfPlayers);
-                                mDatabase.child("lobby").child(lobbyNumber).child("members").child("1").setValue(sp.getString("userLogin", null) + "#" + sp.getString("userId", null));
-                                mDatabase.child("lobby").child(lobbyNumber).child("hostName").setValue(sp.getString("userLogin", null));
-                                mDatabase.child("lobby").child(lobbyNumber).child("hostId").setValue(sp.getString("userId", null));
-                                startActivity(new Intent(LobbyPage.this, LobbyWait.class).putExtra("lobbyNumber", lobbyNumber));
+                                Lobby toPut = new Lobby();
+                                toPut.setHostName(sp.getString("userLogin", null));
+                                toPut.setHostId(sp.getString("userId", null));
+                                toPut.setMaxCount(""+numberOfPlayers);
+                                toPut.setName(sp.getString("userLogin", null) + "#" + sp.getString("userId", null) +"’s lobby");
+                                ArrayList<String> q = new ArrayList<String>();
+                                q.add(sp.getString("userLogin", null) + "#" + sp.getString("userId", null));
+                                toPut.setMembers(q);
+                                toPut.setNumber(lobbyNumber);
+                                mDatabase.child("lobby").child(lobbyNumber).setValue(toPut);
+                                startActivity(new Intent(LobbyPage.this, LobbyWaitHost.class).putExtra("lobbyNumber", lobbyNumber));
                             }
                         });
 
@@ -128,19 +139,23 @@ public class LobbyPage extends AppCompatActivity {
 
             }
         });
-        mDatabase.child("lobby").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        mDatabase.child("lobby").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                for(DataSnapshot q: task.getResult().getChildren()){
-//                    System.out.println(q.getValue(Lobby2.class));
-                    System.out.println(q.getValue());
-//                    Lobby entry = new Lobby();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                lobbies.clear();
+                for (DataSnapshot q: snapshot.getChildren()){
+                    lobbies.add(q.getValue(Lobby.class));
                 }
+                System.out.println(lobbies);
+                lobbyAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w("TAG", "loadPost:onCancelled", error.toException());
             }
         });
-//        lobbyAdapter = new LobbyAdapter(lobbies);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(lobbyAdapter);
+
 
     }
 }

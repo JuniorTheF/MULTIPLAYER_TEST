@@ -7,7 +7,7 @@
     android:background="@drawable/bg5"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    tools:context=".LobbyWait">
+    tools:context=".LobbyWaitHost">
 
     <TextView
 
