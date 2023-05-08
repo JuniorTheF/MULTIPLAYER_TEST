@@ -4,17 +4,75 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg5"
     android:orientation="vertical"
-    android:gravity="center_horizontal"
     tools:context=".LobbyWaitHost">
 
-    <TextView
+    <androidx.appcompat.widget.Toolbar
+        android:padding="0dp"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@color/toolbar"
+        />
 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="100sp"
-        android:textColor="@color/text"
-        android:text="Ожидайте"
-        android:fontFamily="@font/wiguru"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@drawable/bg5"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ListView
+            android:layout_marginTop="10dp"
+            android:id="@+id/listview_lobby_wait_player"
+            android:layout_weight="100000"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:shadowColor="@color/black"
+                android:shadowRadius="5"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:layout_marginBottom="10dp"
+                android:textSize="40sp"
+                android:textColor="@color/button_login"
+                android:fontFamily="@font/wiguru"
+                android:id="@+id/lobby_player_waiting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ожидание игрков(1/6)..." />
+            <Button
+                android:textColor="@color/text"
+                android:textSize="20sp"
+                android:fontFamily="@font/flash"
+                android:padding="10dp"
+                android:background="@drawable/button_login"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/lobby_player_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Распустить" />
+            <Button
+                android:textColor="@color/text"
+                android:textSize="20sp"
+                android:fontFamily="@font/flash"
+                android:padding="10dp"
+                android:background="@drawable/button_login"
+                android:layout_marginBottom="40dp"
+                android:id="@+id/host_force_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Принудительный старт" />
+        </LinearLayout>
+
+
+    </LinearLayout>
 </LinearLayout>

@@ -15,11 +15,53 @@
         android:background="@color/toolbar"
         />
 
+
     <LinearLayout
         android:orientation="vertical"
         android:background="@drawable/bg5"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <ListView
+            android:layout_marginTop="10dp"
+            android:id="@+id/listview_lobby_wait_player"
+            android:layout_weight="100000"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:shadowColor="@color/black"
+                android:shadowRadius="5"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:layout_marginBottom="10dp"
+                android:textSize="40sp"
+                android:textColor="@color/button_login"
+                android:fontFamily="@font/wiguru"
+                android:id="@+id/lobby_player_waiting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ожидание игрков(1/6)..." />
+            <Button
+                android:textColor="@color/text"
+                android:textSize="30sp"
+                android:fontFamily="@font/flash"
+                android:padding="10dp"
+                android:background="@drawable/button_login"
+                android:layout_marginBottom="40dp"
+                android:id="@+id/lobby_player_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Покинуть" />
+        </LinearLayout>
+
 
     </LinearLayout>
 

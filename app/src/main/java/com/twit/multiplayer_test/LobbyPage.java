@@ -50,8 +50,16 @@ public class LobbyPage extends AppCompatActivity {
         lobbyAdapter = new LobbyAdapter(lobbies, new OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-                mDatabase.child("lobby").child(((TextView)view.findViewById(R.id.rv_number)).getText().toString()).child("members").child(sp.getString("userLogin", null)+" " + sp.getString("userId", null)).setValue(new Member());
-                startActivity(new Intent(LobbyPage.this, LobbyWaitPlayer.class));
+                mDatabase.child("lobby").child(((TextView)view.findViewById(R.id.rv_number)).getText().toString()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (task.getResult().getValue(Lobby.class).getMembers().size() < Integer.parseInt(task.getResult().getValue(Lobby.class).getMaxCount())){
+                            mDatabase.child("lobby").child(((TextView)view.findViewById(R.id.rv_number)).getText().toString()).child("members").child(sp.getString("userLogin", null)+" " + sp.getString("userId", null)).setValue(new Member());
+                            startActivity(new Intent(LobbyPage.this, LobbyWaitPlayer.class).putExtra("lobbyNumber", ((TextView)view.findViewById(R.id.rv_number)).getText().toString()));
+                        }
+                    }
+                });
+
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -125,7 +133,7 @@ public class LobbyPage extends AppCompatActivity {
                                 toPut.setHostName(sp.getString("userLogin", null));
                                 toPut.setHostId(sp.getString("userId", null));
                                 toPut.setMaxCount(""+numberOfPlayers);
-                                toPut.setName(sp.getString("userLogin", null) + "#" + sp.getString("userId", null) +"’s lobby");
+                                toPut.setName("Лобби игрока "+sp.getString("userLogin", null) + "#" + sp.getString("userId", null));
                                 TreeMap<String, Member> q = new TreeMap<>();
                                 q.put(sp.getString("userLogin", null) + " "+ sp.getString("userId", null), new Member());
                                 toPut.setMembers(q);

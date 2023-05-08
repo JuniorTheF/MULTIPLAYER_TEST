@@ -1,10 +1,17 @@
 package com.twit.multiplayer_test;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -17,11 +24,16 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 public class LobbyWaitHost extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
     String lobbyNumber;
+    SharedPreferences sp;
+    ArrayList<String> arrayList = new ArrayList<>();
+    PlayerListViewArrayAdapter adapter;
+    TextView tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,14 +42,55 @@ public class LobbyWaitHost extends AppCompatActivity {
 
         lobbyNumber = getIntent().getExtras().getString("lobbyNumber");
         mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
-        mDatabase.child("lobby").child(lobbyNumber).child("members").get();
+
+        sp = getSharedPreferences("auth_data", MODE_PRIVATE);
+        Toolbar tb = findViewById(R.id.toolbar);
+        setSupportActionBar(tb);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setCustomView(R.layout.toolbar_lobby_wait_host);
+        Button deleteLobby = findViewById(R.id.lobby_player_button);
+
+        adapter = new PlayerListViewArrayAdapter(LobbyWaitHost.this, arrayList);
+        ListView lv = findViewById(R.id.listview_lobby_wait_player);
+        lv.setAdapter(adapter);
+        deleteLobby.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDatabase.child("lobby").child(lobbyNumber).removeValue();
+                startActivity(new Intent(LobbyWaitHost.this, LobbyPage.class));
+            }
+        });
+        Button forceStart = findViewById(R.id.host_force_start);
+        tv = findViewById(R.id.lobby_player_waiting);
+        forceStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDatabase.child("lobby").child(lobbyNumber).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        Lobby lobby = task.getResult().getValue(Lobby.class);
+                        createLobby(lobby);
+                    }
+                });
+            }
+        });
         mDatabase.child("lobby").child(lobbyNumber).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Lobby current = snapshot.getValue(Lobby.class);
-                assert current != null;
-                if ((current.getMembers().size() == Integer.parseInt(current.getMaxCount())) && current.getGameState().equals("waitingForPlayers") ) {
-                    createLobby(current);
+                if (snapshot != null) {
+                    Lobby lobby = snapshot.getValue(Lobby.class);
+                    assert lobby != null;
+                    if ((lobby.getMembers().size() == Integer.parseInt(lobby.getMaxCount())) && lobby.getGameState().equals("waitingForPlayers")) {
+                        createLobby(lobby);
+                    }
+                    Set<String> q = lobby.getMembers().keySet();
+                    arrayList.clear();
+                    for (String i : q) {
+                        arrayList.add(i);
+                    }
+                    adapter.notifyDataSetChanged();
+                    tv.setText(String.format("Ожидание игроков (%d/%s)...", lobby.getMembers().size(), lobby.getMaxCount()));
                 }
             }
 
