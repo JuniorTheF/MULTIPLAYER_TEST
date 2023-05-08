@@ -10,7 +10,7 @@ class Lobby {
 
     Lobby(){};
 
-    public Lobby(String hostName, Map<String, Member>members, String name, String hostId, String maxCount, String number, ArrayList<Card> treasuresDeck, ArrayList<NavCard> navCardsDeck){
+    public Lobby(String hostName, Map<String, Member>members, String name, String hostId, String maxCount, String number, ArrayList<Card> treasuresDeck, ArrayList<NavCard> navCardsDeck, String gameState){
         this.hostName = hostName;
         this.members = members;
         this.name = name;
@@ -19,7 +19,18 @@ class Lobby {
         this.number = number;
         this.navCardsDeck = navCardsDeck;
         this.treasuresDeck = treasuresDeck;
+        this.gameState = gameState;
     }
+
+    public String getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(String gameState) {
+        this.gameState = gameState;
+    }
+
+    private String gameState;
 
     private ArrayList<Card> treasuresDeck;
     private ArrayList<NavCard> navCardsDeck;

@@ -130,6 +130,7 @@ public class LobbyPage extends AppCompatActivity {
                                 q.put(sp.getString("userLogin", null) + " "+ sp.getString("userId", null), new Member());
                                 toPut.setMembers(q);
                                 toPut.setNumber(lobbyNumber);
+                                toPut.setGameState("waitingForPlayers");
                                 mDatabase.child("lobby").child(lobbyNumber).setValue(toPut);
                                 startActivity(new Intent(LobbyPage.this, LobbyWaitHost.class).putExtra("lobbyNumber", lobbyNumber));
                             }
