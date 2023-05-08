@@ -61,8 +61,8 @@ public class LobbyWaitHost extends AppCompatActivity {
         ArrayList<String> friends = new ArrayList<>();
         ArrayList<String> enemies = new ArrayList<>();
         for (String s: roles){
-            enemies.add(s);
-            friends.add(s);
+            enemies.add(String.valueOf(s));
+            friends.add(String.valueOf(s));
         }
         Collections.shuffle(friends);
         Collections.shuffle(enemies);
