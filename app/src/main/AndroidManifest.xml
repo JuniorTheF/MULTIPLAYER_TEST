@@ -17,6 +17,10 @@
             android:name=".LobbyWaitPlayer"
             android:exported="false" />
         <activity
+            android:screenOrientation="landscape"
+            android:name=".MainGame"
+            android:exported="false" />
+        <activity
             android:screenOrientation="portrait"
             android:name=".LobbyWaitHost"
             android:exported="false" />

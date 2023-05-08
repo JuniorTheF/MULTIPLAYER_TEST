@@ -78,9 +78,9 @@ public class LobbyWaitHost extends AppCompatActivity {
         mDatabase.child("lobby").child(lobbyNumber).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot != null) {
+
                     Lobby lobby = snapshot.getValue(Lobby.class);
-                    assert lobby != null;
+                if (lobby != null) {
                     if ((lobby.getMembers().size() == Integer.parseInt(lobby.getMaxCount())) && lobby.getGameState().equals("waitingForPlayers")) {
                         createLobby(lobby);
                     }
