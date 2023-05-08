@@ -36,7 +36,7 @@ public class LobbyWaitHost extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Lobby current = snapshot.getValue(Lobby.class);
                 assert current != null;
-                if (current.getMembers().size() == Integer.parseInt(current.getMaxCount())) {
+                if ((current.getMembers().size() == Integer.parseInt(current.getMaxCount())) && current.getGameState().equals("waitingForPlayers") ) {
                     createLobby(current);
                 }
             }
@@ -55,14 +55,14 @@ public class LobbyWaitHost extends AppCompatActivity {
         ArrayList<Card> treasures = new ArrayList<>();
         Collections.addAll(roles, "Капитан", "Миледи", "Шкет", "Боцман", "Сноб", "Черпак");
         Collections.shuffle(roles);
-        friends = new ArrayList<>(roles);
-        enemies = new ArrayList<>(roles);
-        Collections.shuffle(friends);
-        Collections.shuffle(enemies);
         if (6 - Integer.parseInt(lobby.getMaxCount()) >= 0) {
-            roles = new ArrayList<>(roles.subList(0, Integer.parseInt(lobby.getMaxCount())-1));
+            roles = new ArrayList<>(roles.subList(0, Integer.parseInt(lobby.getMaxCount())));
             System.out.println(roles);
         }
+        friends = new ArrayList<>(roles);
+        Collections.shuffle(friends);
+        enemies = new ArrayList<>(roles);
+        Collections.shuffle(enemies);
         Collections.addAll(treasures,
                 new Card("treasure", "Вода"),
                 new Card("treasure", "Вода"),
@@ -125,26 +125,31 @@ public class LobbyWaitHost extends AppCompatActivity {
                     stats.setPower(3);
                     stats.setSurvival_bonus(9);
                     stats.setRole("Шкет");
+                    break;
                 case "Боцман":
                     stats.setPower(8);
                     stats.setSurvival_bonus(4);
                     stats.setRole("Боцман");
+                    break;
                 case "Сноб":
                     stats.setPower(5);
                     stats.setSurvival_bonus(7);
                     stats.setRole("Сноб");
+                    break;
                 case "Черпак":
                     stats.setPower(6);
                     stats.setSurvival_bonus(6);
                     stats.setRole("Черпак");
+                    break;
             }
             stats.setEnemy(enemies.get(0));
             stats.setFriend(friends.get(0));
-            roles.remove(character);
+            roles.remove(0);
             enemies.remove(0);
             friends.remove(0);
             lobby.getMembers().get(n.getKey()).setStats(stats);
         };
+        lobby.setGameState("created");
         mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
         startActivity(new Intent(this, MainGame.class));
     }
