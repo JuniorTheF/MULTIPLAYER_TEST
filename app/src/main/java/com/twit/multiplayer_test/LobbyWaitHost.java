@@ -50,19 +50,21 @@ public class LobbyWaitHost extends AppCompatActivity {
 
     protected void createLobby(Lobby lobby) {
         ArrayList<String> roles = new ArrayList<>();
-        ArrayList<String> friends = new ArrayList<>();
-        ArrayList<String> enemies = new ArrayList<>();
         ArrayList<Card> treasures = new ArrayList<>();
         Collections.addAll(roles, "Капитан", "Миледи", "Шкет", "Боцман", "Сноб", "Черпак");
         Collections.shuffle(roles);
-        friends = new ArrayList<>(roles);
-        enemies = new ArrayList<>(roles);
-        Collections.shuffle(friends);
-        Collections.shuffle(enemies);
+        ArrayList<String> friends = new ArrayList<>();
+        ArrayList<String> enemies = new ArrayList<>();
         if (6 - Integer.parseInt(lobby.getMaxCount()) >= 0) {
             roles = new ArrayList<>(roles.subList(0, Integer.parseInt(lobby.getMaxCount())-1));
             System.out.println(roles);
         }
+        for (String s: roles){
+            friends.add(s);
+            enemies.add(s);
+        }
+        Collections.shuffle(friends);
+        Collections.shuffle(enemies);
         Collections.addAll(treasures,
                 new Card("treasure", "Вода"),
                 new Card("treasure", "Вода"),
