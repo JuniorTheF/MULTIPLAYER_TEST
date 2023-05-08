@@ -1,12 +1,14 @@
 package com.twit.multiplayer_test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Card{
     String type;
     String name;
 
-    Card(){};
+    Card(){
+    };
 
     public String getType() {
         return type;
@@ -45,7 +47,9 @@ class NavCard extends Card {
         this.workers = workers;
     };
 
-    NavCard(){};
+    NavCard(){
+
+    };
 
     public List<String> getBort() {
         return bort;

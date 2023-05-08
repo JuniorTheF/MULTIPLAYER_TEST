@@ -30,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class LobbyPage extends AppCompatActivity {
 
@@ -46,10 +47,10 @@ public class LobbyPage extends AppCompatActivity {
         setContentView(R.layout.activity_lobby_page);
         SharedPreferences sp = getApplicationContext().getSharedPreferences("auth_data", MODE_PRIVATE);
         RecyclerView recyclerView = findViewById(R.id.rv_lobbies);
-        lobbyAdapter = new LobbyAdapter(lobbies, new OnItemCLickListener() {
+        lobbyAdapter = new LobbyAdapter(lobbies, new OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-                mDatabase.child("lobby").child(((TextView)view.findViewById(R.id.rv_number)).getText().toString()).child("members").child(((TextView)view.findViewById(R.id.rv_members_count)).getText().toString().substring(0,1)).setValue(sp.getString("userLogin", null) + "#" + sp.getString("userId", null));
+                mDatabase.child("lobby").child(((TextView)view.findViewById(R.id.rv_number)).getText().toString()).child("members").child(sp.getString("userLogin", null)+" " + sp.getString("userId", null)).setValue(new Member());
                 startActivity(new Intent(LobbyPage.this, LobbyWaitPlayer.class));
             }
         });
@@ -125,8 +126,8 @@ public class LobbyPage extends AppCompatActivity {
                                 toPut.setHostId(sp.getString("userId", null));
                                 toPut.setMaxCount(""+numberOfPlayers);
                                 toPut.setName(sp.getString("userLogin", null) + "#" + sp.getString("userId", null) +"’s lobby");
-                                ArrayList<String> q = new ArrayList<String>();
-                                q.add(sp.getString("userLogin", null) + "#" + sp.getString("userId", null));
+                                TreeMap<String, Member> q = new TreeMap<>();
+                                q.put(sp.getString("userLogin", null) + " "+ sp.getString("userId", null), new Member());
                                 toPut.setMembers(q);
                                 toPut.setNumber(lobbyNumber);
                                 mDatabase.child("lobby").child(lobbyNumber).setValue(toPut);
@@ -145,6 +146,7 @@ public class LobbyPage extends AppCompatActivity {
                 lobbies.clear();
                 for (DataSnapshot q: snapshot.getChildren()){
                     lobbies.add(q.getValue(Lobby.class));
+                    System.out.println(q.getValue(Lobby.class));
                 }
                 System.out.println(lobbies);
                 lobbyAdapter.notifyDataSetChanged();

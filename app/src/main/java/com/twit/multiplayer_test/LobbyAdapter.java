@@ -9,16 +9,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 public class LobbyAdapter extends RecyclerView.Adapter<LobbyAdapter.ViewHolder> {
 
     private List<Lobby> lobbies;
-    OnItemCLickListener listener;
+    OnItemClickListener listener;
 
-    LobbyAdapter(List<Lobby> lobbies, OnItemCLickListener listener) {
+    LobbyAdapter(List<Lobby> lobbies, OnItemClickListener listener) {
         this.lobbies = lobbies;
         this.listener = listener;
     }
@@ -47,9 +45,10 @@ public class LobbyAdapter extends RecyclerView.Adapter<LobbyAdapter.ViewHolder> 
         members_count.setText(lobbyToView.getMembers().size()+"/"+lobbyToView.getMaxCount());
         TextView members = holder.members;
         String toSet = "";
-        for (String q: lobbyToView.getMembers()){
-            toSet += q +"\n";
+        for (String q: lobbyToView.getMembers().keySet()){
+            toSet += q.substring(0, q.lastIndexOf(" "))+"#"+q.substring(q.lastIndexOf(" ")+1) +"\n";
         }
+        System.out.println(lobbyToView.getMembers());
         members.setText(toSet);
         TextView lobbyName = holder.lobbyName;
         lobbyName.setText(lobbyToView.getName());
