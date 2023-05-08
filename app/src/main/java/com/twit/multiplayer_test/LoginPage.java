@@ -65,7 +65,6 @@ public class LoginPage extends AppCompatActivity {
 
 
     }
-
     public static int generateId() {
         return ((Double) (Math.random()*10000.)).intValue();
     }
