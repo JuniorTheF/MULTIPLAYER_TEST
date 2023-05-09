@@ -67,4 +67,12 @@
         tools:layout_editor_absoluteX="66dp"
         tools:layout_editor_absoluteY="127dp" />
 
+    <ImageView
+        android:id="@+id/imageView12"
+        android:layout_width="172dp"
+        android:layout_height="47dp"
+        app:srcCompat="@drawable/miledi_bonus"
+        tools:layout_editor_absoluteX="-23dp"
+        tools:layout_editor_absoluteY="339dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
