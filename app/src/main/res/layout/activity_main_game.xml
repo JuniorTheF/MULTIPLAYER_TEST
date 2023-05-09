@@ -4,6 +4,67 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
     tools:context=".MainGame">
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/gamebg" />
+
+    <ImageView
+        android:id="@+id/imageView6"
+        android:layout_width="100dp"
+        android:layout_height="138dp"
+        app:srcCompat="@drawable/shket"
+        tools:layout_editor_absoluteX="691dp"
+        tools:layout_editor_absoluteY="127dp" />
+
+    <ImageView
+        android:id="@+id/imageView7"
+        android:layout_width="100dp"
+        android:layout_height="138dp"
+        app:srcCompat="@drawable/cherpak"
+        tools:layout_editor_absoluteX="565dp"
+        tools:layout_editor_absoluteY="127dp" />
+
+    <ImageView
+        android:id="@+id/imageView8"
+        android:layout_width="100dp"
+        android:layout_height="138dp"
+        app:srcCompat="@drawable/botsman"
+        tools:layout_editor_absoluteX="438dp"
+        tools:layout_editor_absoluteY="127dp" />
+
+    <ImageView
+        android:id="@+id/imageView9"
+        android:layout_width="100dp"
+        android:layout_height="138dp"
+        app:srcCompat="@drawable/kapitan"
+        tools:layout_editor_absoluteX="315dp"
+        tools:layout_editor_absoluteY="127dp" />
+
+    <ImageView
+        android:id="@+id/imageView10"
+        android:layout_width="100dp"
+        android:layout_height="138dp"
+        app:srcCompat="@drawable/snob"
+        tools:layout_editor_absoluteX="189dp"
+        tools:layout_editor_absoluteY="127dp" />
+
+    <ImageView
+        android:id="@+id/imageView11"
+        android:layout_width="100dp"
+        android:layout_height="138dp"
+        app:srcCompat="@drawable/miledi"
+        tools:layout_editor_absoluteX="66dp"
+        tools:layout_editor_absoluteY="127dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
