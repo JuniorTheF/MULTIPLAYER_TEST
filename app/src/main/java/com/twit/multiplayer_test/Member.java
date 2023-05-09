@@ -89,19 +89,19 @@ class State{
 
     public State(){
         this.injuries = 0;
-        this.fatigue = 0;
+        this.thirst = 0;
         this.brawled = 0;
         this.pulled = 0;
     }
 
     private Integer injuries;
-    private Integer fatigue;
+    private Integer thirst;
     private Integer brawled;
     private Integer pulled;
 
-    public State(Integer injuries, Integer fatigue, Integer brawled, Integer pulled) {
+    public State(Integer injuries, Integer thirst, Integer brawled, Integer pulled) {
         this.injuries = injuries;
-        this.fatigue = fatigue;
+        this.thirst = thirst;
         this.brawled = brawled;
         this.pulled = pulled;
     }
@@ -115,12 +115,12 @@ class State{
         this.injuries = injuries;
     }
 
-    public Integer getFatigue() {
-        return fatigue;
+    public Integer getThirst() {
+        return thirst;
     }
 
-    public void setFatigue(Integer fatigue) {
-        this.fatigue = fatigue;
+    public void setThirst(Integer thirst) {
+        this.thirst = thirst;
     }
 
     public Integer getBrawled() {
