@@ -8,20 +8,43 @@ import java.util.TreeMap;
 public class Member {
 
     Member(){
+        this.turn = 0;
         this.state = new State();
         this.stats = new Stats();
         this.treasures = new Treasures();
+        this.name = "";
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private String name;
 
     private Stats stats;
+
+    public Integer getTurn() {
+        return turn;
+    }
+
+    public void setTurn(Integer turn) {
+        this.turn = turn;
+    }
+
+    private Integer turn;
     private State state;
     private Treasures treasures;
 
-    public Member(Stats stats, State state, Treasures treasures) {
+    public Member(Stats stats, State state, Treasures treasures, Integer turn, String name) {
         this.stats = stats;
         this.state = state;
         this.treasures = treasures;
+        this.turn = turn;
+        this.name = name;
     }
 
     public Stats getStats() {
@@ -56,8 +79,6 @@ class Treasures{
     public Treasures(){
         this.open = new ArrayList<>();
         this.close = new ArrayList<>();
-        this.close.add("");
-        this.open.add("");
     };
 
     public Treasures(ArrayList<String> open, ArrayList<String> close) {
@@ -88,6 +109,7 @@ class State{
 
 
     public State(){
+        this.seat = 0;
         this.injuries = 0;
         this.thirst = 0;
         this.brawled = 0;
@@ -99,11 +121,22 @@ class State{
     private Integer brawled;
     private Integer pulled;
 
-    public State(Integer injuries, Integer thirst, Integer brawled, Integer pulled) {
+    public Integer getSeat() {
+        return seat;
+    }
+
+    public void setSeat(Integer seat) {
+        this.seat = seat;
+    }
+
+    private Integer seat;
+
+    public State(Integer injuries, Integer thirst, Integer brawled, Integer pulled, Integer seat) {
         this.injuries = injuries;
         this.thirst = thirst;
         this.brawled = brawled;
         this.pulled = pulled;
+        this.seat = seat;
     }
 
 

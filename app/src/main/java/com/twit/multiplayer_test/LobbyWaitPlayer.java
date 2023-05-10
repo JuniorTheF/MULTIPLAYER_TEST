@@ -81,7 +81,7 @@ public class LobbyWaitPlayer extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                     tv.setText(String.format("Ожидание игроков (%d/%s)...", lobby.getMembers().size(), lobby.getMaxCount()));
                     if (!lobby.getGameState().equals("waitingForPlayers")) {
-                        startActivity(new Intent(LobbyWaitPlayer.this, MainGame.class));
+                        startActivity(new Intent(LobbyWaitPlayer.this, MainGame.class).putExtra("lobbyNumber", lobbyNumber));
                     }
                 }
             }

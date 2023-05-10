@@ -21,8 +21,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +44,6 @@ public class LobbyWaitHost extends AppCompatActivity {
 
         lobbyNumber = getIntent().getExtras().getString("lobbyNumber");
         mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
-
         sp = getSharedPreferences("auth_data", MODE_PRIVATE);
         Toolbar tb = findViewById(R.id.toolbar);
         setSupportActionBar(tb);
@@ -107,8 +108,8 @@ public class LobbyWaitHost extends AppCompatActivity {
         ArrayList<Card> treasures = new ArrayList<>();
         Collections.addAll(roles, "Капитан", "Миледи", "Шкет", "Боцман", "Сноб", "Черпак");
         Collections.shuffle(roles);
-        if (6 - Integer.parseInt(lobby.getMaxCount()) >= 0) {
-            roles = new ArrayList<>(roles.subList(0, Integer.parseInt(lobby.getMaxCount())));
+        if (6 - Math.min(Integer.parseInt(lobby.getMaxCount()), lobby.getMembers().size()) >= 0) {
+            roles = new ArrayList<>(roles.subList(0, Math.min(Integer.parseInt(lobby.getMaxCount()), lobby.getMembers().size())));
             System.out.println(roles);
         }
         ArrayList<String> friends = new ArrayList<>();
@@ -120,47 +121,47 @@ public class LobbyWaitHost extends AppCompatActivity {
         Collections.shuffle(friends);
         Collections.shuffle(enemies);
         Collections.addAll(treasures,
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Вода"),
-                new Card("treasure", "Аптечка"),
-                new Card("treasure", "Аптечка"),
-                new Card("treasure", "Аптечка"),
-                new Card("treasure", "Зонтик"),
-                new Card("treasure", "Приманка для акул"),
-                new Card("treasure", "Приманка для акул"),
-                new Card("treasure", "Компас"),
-                new Card("treasure", "Весло"),
-                new Card("treasure", "Весло"),
-                new Card("treasure", "Дубинка"),
-                new Card("treasure", "Нож"),
-                new Card("treasure", "Пистолет"),
-                new Card("treasure", "Пачка денег"),
-                new Card("treasure", "Пачка денег"),
-                new Card("treasure", "Пачка денег"),
-                new Card("treasure", "Пачка денег"),
-                new Card("treasure", "Пачка денег"),
-                new Card("treasure", "Пачка денег"),
-                new Card("treasure", "Картина"),
-                new Card("treasure", "Картина"),
-                new Card("treasure", "Картина"),
-                new Card("treasure", "Украшения"),
-                new Card("treasure", "Украшения"),
-                new Card("treasure", "Украшения"),
-                new Card("treasure", "Спасательный жилет")
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Вода", "R.drawable.voda"),
+                new Card("treasure", "Аптечка",  "R.drawable.aptechka"),
+                new Card("treasure", "Аптечка",  "R.drawable.aptechka"),
+                new Card("treasure", "Аптечка",  "R.drawable.aptechka"),
+                new Card("treasure", "Зонтик",  "R.drawable.zontik"),
+                new Card("treasure", "Приманка для акул",  "R.drawable.akuli"),
+                new Card("treasure", "Приманка для акул",  "R.drawable.akuli"),
+                new Card("treasure", "Компас",  "R.drawable.kompas"),
+                new Card("treasure", "Весло",  "R.drawable.veslo"),
+                new Card("treasure", "Весло",  "R.drawable.veslo"),
+                new Card("treasure", "Дубинка",  "R.drawable.dubinka"),
+                new Card("treasure", "Нож",  "R.drawable.nozh"),
+                new Card("treasure", "Пистолет",  "R.drawable.pistolet"),
+                new Card("treasure", "Пачка денег",  "R.drawable.dengi"),
+                new Card("treasure", "Пачка денег",  "R.drawable.dengi"),
+                new Card("treasure", "Пачка денег",  "R.drawable.dengi"),
+                new Card("treasure", "Пачка денег",  "R.drawable.dengi"),
+                new Card("treasure", "Пачка денег",  "R.drawable.dengi"),
+                new Card("treasure", "Пачка денег",  "R.drawable.dengi"),
+                new Card("treasure", "Картина", "R.drawable.kartina1"),
+                new Card("treasure", "Картина", "R.drawable.kartina2"),
+                new Card("treasure", "Картина", "R.drawable.kartina3"),
+                new Card("treasure", "Украшения", "R.drawable.ukrashenia1"),
+                new Card("treasure", "Украшения", "R.drawable.ukrashenia2"),
+                new Card("treasure", "Украшения", "R.drawable.ukrashenia3"),
+                new Card("treasure", "Спасательный жилет", "R.drawable.zhilet")
                 );
         Collections.shuffle(treasures);
         for (Map.Entry<String, Member> n : lobby.getMembers().entrySet()) {
@@ -204,11 +205,229 @@ public class LobbyWaitHost extends AppCompatActivity {
             enemies.remove(0);
             friends.remove(0);
             lobby.getMembers().get(n.getKey()).setStats(stats);
+            lobby.getMembers().get(n.getKey()).setName(n.getKey().substring(0, n.getKey().lastIndexOf(" "))+"#"+n.getKey().substring(n.getKey().lastIndexOf(" ")+1));
         };
+        Integer seat = 1;
+        String[] ordered = {"Миледи", "Сноб", "Капитан", "Боцман", "Черпак", "Шкет"};
+        for (String ro: ordered){
+            for (String le: lobby.getMembers().keySet()){
+                if (ro.equals(lobby.getMembers().get(le).getStats().getRole())){
+                    lobby.getMembers().get(le).getState().setSeat(seat);
+                    lobby.getMembers().get(le).setTurn(seat);
+                    seat+=1;
+                }
+            }
+        }
+        lobby.setNavCardsDeck(createNavCards());
+        lobby.setTreasuresDeck(treasures);
         lobby.setGameState("created");
+        lobby.setTurn(1);
         mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
-        startActivity(new Intent(this, MainGame.class));
+        startActivity(new Intent(this, MainGame.class).putExtra("lobbyNumber", lobbyNumber));
     }
+
+    private ArrayList<NavCard> createNavCards() {
+        ArrayList<NavCard> navCards = new ArrayList<>();
+        //1+
+        ArrayList<String> bort1 = new ArrayList<>();
+        ArrayList<String> thirst1 = new ArrayList<>();
+        bort1.add("Боцман");
+        thirst1.add("Капитан");
+        thirst1.add("Черпак");
+        navCards.add(new NavCard(bort1, thirst1, 0, 1, 1, "R.drawable.n1"));
+        //2+
+        ArrayList<String> bort2 = new ArrayList<>();
+        ArrayList<String> thirst2 = new ArrayList<>();
+        bort2.add("Сноб");
+        thirst2.add("Капитан");
+        thirst2.add("Шкет");
+        navCards.add(new NavCard(bort2, thirst2, 1, 0, 1, "R.drawable.n2"));
+        //3+
+        ArrayList<String> bort3 = new ArrayList<>();
+        ArrayList<String> thirst3 = new ArrayList<>();
+        bort3.add("Черпак");
+        thirst3.add("Капитан");
+        thirst3.add("Боцман");
+        thirst3.add("Миледи");
+        navCards.add(new NavCard(bort3, thirst3, 0, 1, 0, "R.drawable.n3"));
+        //4+
+        ArrayList<String> bort4 = new ArrayList<>();
+        ArrayList<String> thirst4 = new ArrayList<>();
+        bort4.add("Шкет");
+        thirst4.add("Капитан");
+        thirst4.add("Боцман");
+        thirst4.add("Черпак");
+        thirst4.add("Шкет");
+        navCards.add(new NavCard(bort4, thirst4, 0, 1, 0, "R.drawable.n4"));
+        //5+
+        ArrayList<String> bort5 = new ArrayList<>();
+        ArrayList<String> thirst5 = new ArrayList<>();
+        bort5.add("Миледи");
+        thirst5.add("Капитан");
+        thirst5.add("Боцман");
+        thirst5.add("Миледи");
+        thirst5.add("Черпак");
+        thirst5.add("Сноб");
+        navCards.add(new NavCard(bort5, thirst5, -1, 0, 1, "R.drawable.n5"));
+        //6+
+        ArrayList<String> bort6 = new ArrayList<>();
+        ArrayList<String> thirst6 = new ArrayList<>();
+        bort6.add("Сноб");
+        thirst6.add("Капитан");
+        thirst6.add("Черпак");
+        thirst6.add("Боцман");
+        navCards.add(new NavCard(bort6, thirst6, 0, 1, 1, "R.drawable.n6"));
+        //7+
+        ArrayList<String> bort7 = new ArrayList<>();
+        ArrayList<String> thirst7 = new ArrayList<>();
+        bort7.add("Сноб");
+        bort7.add("Капитан");
+        bort7.add("Шкет");
+        bort7.add("Черпак");
+        bort7.add("Миледи");
+        bort7.add("Боцман");
+        thirst7.add("Сноб");
+        thirst7.add("Капитан");
+        thirst7.add("Шкет");
+        thirst7.add("Черпак");
+        thirst7.add("Миледи");
+        thirst7.add("Боцман");
+        navCards.add(new NavCard(bort7, thirst7, 1, 1, 1, "R.drawable.n7"));
+        //8+
+        ArrayList<String> bort8 = new ArrayList<>();
+        ArrayList<String> thirst8 = new ArrayList<>();
+        bort8.add("Черпак");
+        thirst8.add("Капитан");
+        thirst8.add("Шкет");
+        thirst8.add("Боцман");
+        navCards.add(new NavCard(bort8, thirst8, 0, 0, 1, "R.drawable.n8"));
+        //9+
+        ArrayList<String> bort9 = new ArrayList<>();
+        ArrayList<String> thirst9 = new ArrayList<>();
+        bort9.add("Черпак");
+        thirst9.add("Капитан");
+        thirst9.add("Черпак");
+        thirst9.add("Боцман");
+        thirst9.add("Сноб");
+        navCards.add(new NavCard(bort9, thirst9, 0, 1, 1, "R.drawable.n9"));
+        //10+
+        ArrayList<String> bort10 = new ArrayList<>();
+        ArrayList<String> thirst10 = new ArrayList<>();
+        bort10.add("Боцман");
+        thirst10.add("Миледи");
+        navCards.add(new NavCard(bort10, thirst10, 0, 0, 0, "R.drawable.n10"));
+        //11+
+        ArrayList<String> bort11 = new ArrayList<>();
+        ArrayList<String> thirst11 = new ArrayList<>();
+        bort11.add("Капитан");
+        thirst11.add("Капитан");
+        navCards.add(new NavCard(bort11, thirst11, 0, 0, 0, "R.drawable.n11"));
+        //12+
+        ArrayList<String> bort12 = new ArrayList<>();
+        ArrayList<String> thirst12 = new ArrayList<>();
+        bort12.add("Шкет");
+        thirst12.add("Капитан");
+        thirst12.add("Боцман");
+        thirst12.add("Миледи");
+        thirst12.add("Сноб");
+        thirst12.add("Черпак");
+        navCards.add(new NavCard(bort12, thirst12, 0, 0, 1, "R.drawable.n12"));
+        //13+
+        ArrayList<String> bort13 = new ArrayList<>();
+        ArrayList<String> thirst13 = new ArrayList<>();
+        bort13.add("Черпак");
+        thirst13.add("Капитан");
+        thirst13.add("Боцман");
+        thirst13.add("Сноб");
+        navCards.add(new NavCard(bort13, thirst13, 1, 0, 0, "R.drawable.n13"));
+        //14+
+        ArrayList<String> bort14 = new ArrayList<>();
+        ArrayList<String> thirst14 = new ArrayList<>();
+        bort14.add("Сноб");
+        thirst14.add("Капитан");
+        thirst14.add("Сноб");
+        navCards.add(new NavCard(bort14, thirst14, 0, 0, 0, "R.drawable.n14"));
+        //15+
+        ArrayList<String> bort15 = new ArrayList<>();
+        ArrayList<String> thirst15 = new ArrayList<>();
+        bort15.add("Капитан");
+        thirst15.add("Сноб");
+        navCards.add(new NavCard(bort15, thirst15, 0, 1, 1, "R.drawable.n15"));
+        //16+
+        ArrayList<String> bort16 = new ArrayList<>();
+        ArrayList<String> thirst16 = new ArrayList<>();
+        bort16.add("Капитан");
+        thirst16.add("Черпак");
+        navCards.add(new NavCard(bort16, thirst16, 0, 0, 0, "R.drawable.n16"));
+        //17+
+        ArrayList<String> bort17 = new ArrayList<>();
+        ArrayList<String> thirst17 = new ArrayList<>();
+        bort17.add("Сноб");
+        thirst17.add("Капитан");
+        thirst17.add("Миледи");
+        navCards.add(new NavCard(bort17, thirst17, 0, 1, 0, "R.drawable.n17"));
+        //18+
+        ArrayList<String> bort18 = new ArrayList<>();
+        ArrayList<String> thirst18 = new ArrayList<>();
+        bort18.add("Шкет");
+        thirst18.add("Капитан");
+        thirst18.add("Шкет");
+        thirst18.add("Черпак");
+        thirst18.add("Боцман");
+        thirst18.add("Сноб");
+        navCards.add(new NavCard(bort18, thirst18, 1, 1, 1, "R.drawable.n18"));
+        //19+
+        ArrayList<String> bort19 = new ArrayList<>();
+        ArrayList<String> thirst19 = new ArrayList<>();
+        bort19.add("Шкет");
+        thirst19.add("Капитан");
+        thirst19.add("Черпак");
+        thirst19.add("Боцман");
+        thirst19.add("Миледи");
+        navCards.add(new NavCard(bort19, thirst19, 0, 0, 0, "R.drawable.n19"));
+        //20+
+        ArrayList<String> bort20 = new ArrayList<>();
+        ArrayList<String> thirst20 = new ArrayList<>();
+        bort20.add("Боцман");
+        thirst20.add("Капитан");
+        thirst20.add("Боцман");
+        navCards.add(new NavCard(bort20, thirst20, 0, 0, 1, "R.drawable.n20"));
+        //21+
+        ArrayList<String> bort21 = new ArrayList<>();
+        ArrayList<String> thirst21 = new ArrayList<>();
+        navCards.add(new NavCard(bort21, thirst21, 1, 0, 0, "R.drawable.n21"));
+        //22+
+        ArrayList<String> bort22 = new ArrayList<>();
+        ArrayList<String> thirst22 = new ArrayList<>();
+        bort22.add("Боцман");
+        bort22.add("Капитан");
+        bort22.add("Миледи");
+        bort22.add("Сноб");
+        bort22.add("Шкет");
+        bort22.add("Черпак");
+        thirst22.add("Боцман");
+        thirst22.add("Капитан");
+        thirst22.add("Миледи");
+        thirst22.add("Сноб");
+        thirst22.add("Шкет");
+        thirst22.add("Черпак");
+        navCards.add(new NavCard(bort22, thirst22, 0, 1, 0, "R.drawable.n22"));
+        //23+
+        ArrayList<String> bort23 = new ArrayList<>();
+        ArrayList<String> thirst23 = new ArrayList<>();
+        bort23.add("Капитан");
+        thirst23.add("Боцман");
+        navCards.add(new NavCard(bort23, thirst23, 1, 1, 0, "R.drawable.n23"));
+        //24+
+        ArrayList<String> bort24 = new ArrayList<>();
+        ArrayList<String> thirst24 = new ArrayList<>();
+        bort24.add("Боцман");
+        thirst24.add("Боцман");
+        navCards.add(new NavCard(bort24, thirst24, 1, 1, 0, "R.drawable.n24"));
+
+
+        return navCards;
+    };
 
     @Override
     protected void onDestroy() {
