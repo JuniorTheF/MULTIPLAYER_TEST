@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -31,11 +32,23 @@ import java.util.TreeSet;
 public class LobbyWaitPlayer extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
+    ValueEventListener lobbyListener;
     String lobbyNumber;
     TextView tv;
     ArrayList<String> arrayList = new ArrayList<>();
     PlayerListViewArrayAdapter adapter;
     SharedPreferences sp;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("LobbyWaitPlayer", "onDestroy");
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("LobbyWaitPlayer", "onResume");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +77,13 @@ public class LobbyWaitPlayer extends AppCompatActivity {
                 ((TextView)tb.findViewById(R.id.tb_lobby_wait_text)).setText(lobby.getName());
             }
         });
-        mDatabase.child("lobby").child(lobbyNumber).addValueEventListener(new ValueEventListener() {
+        lobbyListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot task) {
                 Lobby lobby = task.getValue(Lobby.class);
                 if (lobby == null){
                     Toast.makeText(getApplicationContext(), "Создатель удалил лобби", Toast.LENGTH_LONG).show();
+                    finish();
                     startActivity(new Intent(LobbyWaitPlayer.this, LobbyPage.class));
                 }
                 else {
@@ -81,6 +95,8 @@ public class LobbyWaitPlayer extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                     tv.setText(String.format("Ожидание игроков (%d/%s)...", lobby.getMembers().size(), lobby.getMaxCount()));
                     if (!lobby.getGameState().equals("waitingForPlayers")) {
+                        finish();
+                        mDatabase.child("lobby").child(lobbyNumber).removeEventListener(lobbyListener);
                         startActivity(new Intent(LobbyWaitPlayer.this, MainGame.class).putExtra("lobbyNumber", lobbyNumber));
                     }
                 }
@@ -88,14 +104,15 @@ public class LobbyWaitPlayer extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
-        });
+        };
+        mDatabase.child("lobby").child(lobbyNumber).addValueEventListener(lobbyListener);
 
         leaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mDatabase.child("lobby").child(lobbyNumber).child("members").child(sp.getString("userLogin", null) + " " + sp.getString("userId", null)).removeValue();
+                finish();
                 startActivity(new Intent(LobbyWaitPlayer.this, LobbyPage.class));
             }
         });

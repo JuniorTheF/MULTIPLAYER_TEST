@@ -48,7 +48,6 @@ public class LobbyAdapter extends RecyclerView.Adapter<LobbyAdapter.ViewHolder> 
         for (String q: lobbyToView.getMembers().keySet()){
             toSet += q.substring(0, q.lastIndexOf(" "))+"#"+q.substring(q.lastIndexOf(" ")+1) +"\n";
         }
-        System.out.println(lobbyToView.getMembers());
         members.setText(toSet);
         TextView lobbyName = holder.lobbyName;
         lobbyName.setText(lobbyToView.getName());

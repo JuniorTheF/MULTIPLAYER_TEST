@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class LobbyPage extends AppCompatActivity {
+    public static Handler h;
 
     LobbyAdapter lobbyAdapter;
     ArrayList<Lobby> lobbies = new ArrayList<Lobby>();
@@ -55,6 +58,7 @@ public class LobbyPage extends AppCompatActivity {
                     public void onComplete(@NonNull Task<DataSnapshot> task) {
                         if (task.getResult().getValue(Lobby.class).getMembers().size() < Integer.parseInt(task.getResult().getValue(Lobby.class).getMaxCount())){
                             mDatabase.child("lobby").child(((TextView)view.findViewById(R.id.rv_number)).getText().toString()).child("members").child(sp.getString("userLogin", null)+" " + sp.getString("userId", null)).setValue(new Member());
+                            finish();
                             startActivity(new Intent(LobbyPage.this, LobbyWaitPlayer.class).putExtra("lobbyNumber", ((TextView)view.findViewById(R.id.rv_number)).getText().toString()));
                         }
                     }
@@ -91,6 +95,7 @@ public class LobbyPage extends AppCompatActivity {
                         spe.remove("userLogin");
                         spe.remove("userId");
                         spe.commit();
+                        finish();
                         startActivity(new Intent(LobbyPage.this, LoginPage.class));
                     }
                 });
@@ -140,6 +145,7 @@ public class LobbyPage extends AppCompatActivity {
                                 toPut.setNumber(lobbyNumber);
                                 toPut.setGameState("waitingForPlayers");
                                 mDatabase.child("lobby").child(lobbyNumber).setValue(toPut);
+                                finish();
                                 startActivity(new Intent(LobbyPage.this, LobbyWaitHost.class).putExtra("lobbyNumber", lobbyNumber));
                             }
                         });
@@ -155,9 +161,7 @@ public class LobbyPage extends AppCompatActivity {
                 lobbies.clear();
                 for (DataSnapshot q: snapshot.getChildren()){
                     lobbies.add(q.getValue(Lobby.class));
-                    System.out.println(q.getValue(Lobby.class));
                 }
-                System.out.println(lobbies);
                 lobbyAdapter.notifyDataSetChanged();
             }
 

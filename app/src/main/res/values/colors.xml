@@ -14,6 +14,11 @@
     <color name="hint">#81817e </color>
     <color name="toolbar">#FFFFB8</color>
     <color name="pink">#FF668B</color>
+    <color name="brown">#851F00</color>
+    <color name="transparent">#00000000</color>
+    <color name="agree">#41AA00</color>
+    <color name="donotagree">#CA0000</color>
+
 
 
 </resources>

@@ -33,7 +33,7 @@
         android:background="@drawable/create_lobby"
         android:text="+"
         android:textColor="@color/text"
-        android:textSize="36sp" />
+        android:textSize="33sp" />
     </TableRow>
 
 </TableLayout>

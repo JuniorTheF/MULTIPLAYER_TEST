@@ -16,11 +16,15 @@ import java.util.List;
 public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
 
     private List<Member> members;
+    private OnItemClickListener listener;
+    private OnItemClickListener nickListener;
 
 
 
-    HeroAdapter(List<Member> members) {
+    HeroAdapter(List<Member> members, OnItemClickListener listener, OnItemClickListener nickListener) {
         this.members = members;
+        this.listener = listener;
+        this.nickListener = nickListener;
     }
 
     @NonNull
@@ -29,6 +33,19 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
         Context ctx = parent.getContext();
         LayoutInflater inf = LayoutInflater.from(ctx);
         View heroView = inf.inflate(R.layout.hero_item, parent, false);
+        heroView.findViewById(R.id.constraint_hero).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.onItemClick(view);
+            }
+        });
+        heroView.findViewById(R.id.hero_nick).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                nickListener.onItemClick(view);
+            }
+        });
+
         HeroAdapter.ViewHolder vh = new HeroAdapter.ViewHolder(heroView);
         return vh;
     }
@@ -58,6 +75,7 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
         }
         holder.power.setText(""+member.getStats().getPower());
         holder.nick.setText(member.getName());
+        holder.nick2.setText(member.getName());
         switch (member.getStats().getRole()){
             case "Миледи":
                 holder.cl.setBackgroundResource(R.drawable.miledi_pic);
@@ -93,11 +111,13 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
         ImageView fight;
         ImageView work;
         TextView nick;
+        TextView nick2;
         ConstraintLayout cl;
 
         public ViewHolder(View view){
             super(view);
             nick = view.findViewById(R.id.hero_nick);
+            nick2 = view.findViewById(R.id.hero_nick2);
             power = view.findViewById(R.id.power);
             trauma = view.findViewById(R.id.trauma);
             fight = view.findViewById(R.id.fight_tiredness);

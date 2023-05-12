@@ -34,7 +34,6 @@ public class LoginPage extends AppCompatActivity {
         String userLogin = sp.getString("userLogin", null);
         String userId = sp.getString("userId", null);
         Intent lobbyPage = new Intent(this, LobbyPage.class);
-        System.out.println(userId + " " + userLogin);
       if (userId == null || userLogin == null){
             mDatabase = FirebaseDatabase.getInstance("https://xdlolwtf-default-rtdb.firebaseio.com/").getReference();
 //            header = findViewById(R.id.)
@@ -53,6 +52,7 @@ public class LoginPage extends AppCompatActivity {
                             spe.putString("userLogin", login.getText().toString());
                             spe.putString("userId", String.valueOf(userId));
                             spe.commit();
+                            finish();
                             startActivity(lobbyPage);
                         }
                     });
@@ -60,6 +60,7 @@ public class LoginPage extends AppCompatActivity {
             });
         }
         else {
+          finish();
             startActivity(lobbyPage);
         }
 

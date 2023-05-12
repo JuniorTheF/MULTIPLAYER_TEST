@@ -73,33 +73,33 @@ public class Member {
 }
 
 class Treasures{
-    private ArrayList<String> open;
-    private ArrayList<String> close;
+    private ArrayList<Card> open;
+    private ArrayList<Card> close;
 
     public Treasures(){
         this.open = new ArrayList<>();
         this.close = new ArrayList<>();
     };
 
-    public Treasures(ArrayList<String> open, ArrayList<String> close) {
+    public Treasures(ArrayList<Card> open, ArrayList<Card> close) {
         this.open = open;
         this.close = close;
     }
 
 
-    public ArrayList<String> getOpen() {
+    public ArrayList<Card> getOpen() {
         return open;
     }
 
-    public void setOpen(ArrayList<String> open) {
+    public void setOpen(ArrayList<Card> open) {
         this.open = open;
     }
 
-    public ArrayList<String> getClose() {
+    public ArrayList<Card> getClose() {
         return close;
     }
 
-    public void setClose(ArrayList<String> close) {
+    public void setClose(ArrayList<Card> close) {
         this.close = close;
     }
 }
@@ -109,6 +109,8 @@ class State{
 
 
     public State(){
+        this.status = "alive";
+        this.overboard = 0;
         this.seat = 0;
         this.injuries = 0;
         this.thirst = 0;
@@ -116,6 +118,25 @@ class State{
         this.pulled = 0;
     }
 
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getOverboard() {
+        return overboard;
+    }
+
+    public void setOverboard(Integer overboard) {
+        this.overboard = overboard;
+    }
+
+    private Integer overboard;
     private Integer injuries;
     private Integer thirst;
     private Integer brawled;
