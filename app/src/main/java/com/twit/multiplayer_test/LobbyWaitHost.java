@@ -174,7 +174,7 @@ public class LobbyWaitHost extends AppCompatActivity {
                 new Card("treasure", "Весло",  "veslo"),
                 new Card("treasure", "Дубинка",  "dubinka"),
                 new Card("treasure", "Нож",  "nozh"),
-                new Card("treasure", "Пистолет",  "pistolet"),
+                new Card("treasure", "Сигнальный пистолет",  "pistolet"),
                 new Card("treasure", "Пачка денег",  "dengi"),
                 new Card("treasure", "Пачка денег",  "dengi"),
                 new Card("treasure", "Пачка денег",  "dengi"),
@@ -250,6 +250,7 @@ public class LobbyWaitHost extends AppCompatActivity {
         lobby.setGameState("created");
         lobby.setTurn(1);
         System.out.println(lobby);
+        lobby.setGull(0);
         mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
         finish();
         startActivity(new Intent(this, MainGame.class).putExtra("lobbyNumber", lobbyNumber));
@@ -454,6 +455,7 @@ public class LobbyWaitHost extends AppCompatActivity {
         thirst24.add("Боцман");
         navCards.add(new NavCard(bort24, thirst24, 1, 1, 0, "n24"));
 
+        Collections.shuffle(navCards);
 
         return navCards;
     };

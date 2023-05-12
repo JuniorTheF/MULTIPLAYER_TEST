@@ -45,6 +45,11 @@ public class MainGame extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
     boolean trade_nick_clickable = false;
+    boolean special_action_heal_nick_clickable = false;
+    boolean special_action_umbrella_nick_clickable = false;
+    boolean haveMedkit = false;
+    boolean haveUmbrella = false;
+    boolean haveFlare = false;
     String lobbyNumber;
     String player_name;
     Lobby lobby;
@@ -58,11 +63,16 @@ public class MainGame extends AppCompatActivity {
     TradeItemAdapter yoursCloseAdapter;
     TradeItemAdapter yoursOpenAdapter;
     TradeItemAdapter theirsOpenAdapter;
+    PullAdapter pullAdapter;
+    PullDialog pullDialog;
     TreasureDialog treasureDialog;
     TradeDialog tradeDialog;
+    ActionDialog actionDialog;
+    SpecialCardDialog specialCardDialog;
     MorningTreasureDialog morningTreasureDialog;
     ArrayList<Card> closed;
     ArrayList<Card> open;
+    ArrayList<PullItem> pullItems;
     ArrayList<TradeItem> yoursOpen;
     ArrayList<TradeItem> yoursClose;
     ArrayList<TradeItem> theirsOpen;
@@ -71,6 +81,7 @@ public class MainGame extends AppCompatActivity {
     TextView theirTradeNick;
     TextView theirsCloseText;
     boolean shown = false;
+    boolean actionShown = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +102,7 @@ public class MainGame extends AppCompatActivity {
         yoursOpen = new ArrayList<>();
         theirsOpen = new ArrayList<>();
         theirsClose = new ArrayList<>();
+        pullItems = new ArrayList<>();
         RecyclerView rv = findViewById(R.id.rv_onboardheroes);
 
         adapter = new HeroAdapter(orderedBySeat, new OnItemClickListener() {
@@ -160,12 +172,8 @@ public class MainGame extends AppCompatActivity {
         }, new OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-                String receiver = ((TextView)view.findViewById(R.id.hero_nick)).getText().toString();
+                String receiver = ((TextView)view.findViewById(R.id.hero_nick)).getText().toString().split(System.lineSeparator())[0];
                 receiver = receiver.substring(0, receiver.lastIndexOf("#"))+" "+receiver.substring(receiver.lastIndexOf("#")+1);
-                System.out.println(trade_nick_clickable);
-                System.out.println(lobby.getMembers().get(receiver).getState().getStatus().equals("alive"));
-                System.out.println(!receiver.equals(player_name));
-                System.out.println(trade_nick_clickable && lobby.getMembers().get(receiver).getState().getStatus().equals("alive") && !receiver.equals(player_name));
                 if (trade_nick_clickable && lobby.getMembers().get(receiver).getState().getStatus().equals("alive") && !receiver.equals(player_name)){
                     yoursOpenAdapter = new TradeItemAdapter(yoursOpen, new OnItemClickListener() {
                         @Override
@@ -289,6 +297,40 @@ public class MainGame extends AppCompatActivity {
                         }
                     });
                 }
+                if (special_action_heal_nick_clickable){
+
+                    if (!lobby.getMembers().get(receiver).getState().getStatus().equals("dead") && lobby.getMembers().get(receiver).getState().getInjuries()>0){
+                        if (lobby.getMembers().get(receiver).getState().getStatus().equals("unconscious")){
+                            lobby.getMembers().get(receiver).getState().setStatus("alive");
+                        }
+                        lobby.getMembers().get(receiver).getState().setInjuries(lobby.getMembers().get(receiver).getState().getInjuries()-1);
+
+                        special_action_heal_nick_clickable = false;
+                            for (Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
+                                if (q.getName().equals("Аптечка")){
+                                    lobby.getMembers().get(player_name).getTreasures().getClose().remove(q);
+                                    break;
+                                };
+                        }
+                        nextMove("noon");
+
+                    }
+                }
+                if (special_action_umbrella_nick_clickable){
+                    if(lobby.getMembers().get(receiver).getTreasures().getOpen()== null){
+                        lobby.getMembers().get(receiver).getTreasures().setOpen(new ArrayList<>());
+                    }
+                    Card umb = new Card();
+                        for (Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
+                            if (q.getName().equals("Зонтик")){
+                                umb = q;
+                                lobby.getMembers().get(player_name).getTreasures().getClose().remove(q);
+                                break;
+                            };
+                    }
+                    lobby.getMembers().get(receiver).getTreasures().getOpen().add(umb);
+                        nextMove("noon");
+                }
             }
         });
         FlexboxLayoutManager manager = new FlexboxLayoutManager(this);
@@ -303,30 +345,42 @@ public class MainGame extends AppCompatActivity {
         morningTreasureDialog.setCanceledOnTouchOutside(false);
         tradeDialog = new TradeDialog(MainGame.this);
         tradeDialog.setCanceledOnTouchOutside(false);
+        actionDialog = new ActionDialog(MainGame.this);
+        actionDialog.setCanceledOnTouchOutside(false);
+        pullDialog = new PullDialog(MainGame.this);
+        pullDialog.setCanceledOnTouchOutside(false);
+        specialCardDialog = new SpecialCardDialog(MainGame.this);
+        specialCardDialog.setCanceledOnTouchOutside(false);
         closedAdapter = new TreasureCardAdapter(closed, new OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-                AlertDialog.Builder adb = new AlertDialog.Builder(MainGame.this);
-                adb.setTitle("Вы хотите сделать предмет \""+((TextView)view.findViewById(R.id.treasure_text)).getText().toString()+"\" открытым?")
-                        .setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                String clicked = ((TextView)view.findViewById(R.id.treasure_text)).getText().toString();
-                                ArrayList<Card> open = new ArrayList<>(lobby.getMembers().get(player_name).getTreasures().getOpen());
-                                ArrayList<Card> close = new ArrayList<>(lobby.getMembers().get(player_name).getTreasures().getClose());
-                                for(Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
-                                    if (q.getName().equals(clicked)){
-                                        close.remove(q);
-                                        open.add(q);
-                                        break;
+                String type = ((TextView)view.findViewById(R.id.treasure_text)).getText().toString();
+                if(!(type.equals("Аптечка") || type.equals("Зонтик") || type.equals("Сигнальный пистолет"))) {
+                    AlertDialog.Builder adb = new AlertDialog.Builder(MainGame.this);
+                    adb.setTitle("Вы хотите сделать предмет \"" + ((TextView) view.findViewById(R.id.treasure_text)).getText().toString() + "\" открытым?")
+                            .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    String clicked = ((TextView) view.findViewById(R.id.treasure_text)).getText().toString();
+                                    ArrayList<Card> open = new ArrayList<>(lobby.getMembers().get(player_name).getTreasures().getOpen());
+                                    ArrayList<Card> close = new ArrayList<>(lobby.getMembers().get(player_name).getTreasures().getClose());
+                                    for (Card q : lobby.getMembers().get(player_name).getTreasures().getClose()) {
+                                        if (q.getName().equals(clicked)) {
+                                            close.remove(q);
+                                            open.add(q);
+                                            break;
+                                        }
                                     }
-                                }
-                                mDatabase.child("lobby").child(lobbyNumber).child("members").child(player_name).child("treasures").setValue(new Treasures(open, close));
+                                    mDatabase.child("lobby").child(lobbyNumber).child("members").child(player_name).child("treasures").setValue(new Treasures(open, close));
 
-                            }
-                        })
-                        .setNegativeButton("Нет", null);
-                adb.show();
+                                }
+                            })
+                            .setNegativeButton("Нет", null);
+                    adb.show();
+                }
+                else{
+                    Toast.makeText(MainGame.this, "Можно использовать только днем", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         openAdapter = new TreasureCardAdapter(open, new OnItemClickListener() {
@@ -368,14 +422,17 @@ public class MainGame extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 lobby = snapshot.getValue(Lobby.class);
                 if (!(null == lobby)) {
+                    Integer gulls = lobby.getGull();
+                    gulls = Math.min(gulls, 4);
+                    ((ImageView)MainGame.this.findViewById(R.id.gulls_main)).setImageResource(getResId("gulls"+gulls, R.drawable.class));
+
+
                     orderedBySeat.clear();
                     orderedByTurn.clear();
                     closed.clear();
                     open.clear();
                     for (Member q : lobby.getMembers().values()) {
-                        if (!(q.getState().getStatus().equals("dead") || q.getState().getStatus().equals("unconscious"))) {
-                            orderedByTurn.add(q);
-                        }
+                        orderedByTurn.add(q);
                         if (!(q.getState().getStatus().equals("dead") && q.getState().getOverboard().equals(1))) {
                             orderedBySeat.add(q);
                         }
@@ -455,55 +512,59 @@ public class MainGame extends AppCompatActivity {
                     }
                     if (lobby.getGameState().equals("created") || lobby.getGameState().equals("morning")) {
                         gameStateTextView.setText("Утро\n" + "Ходит " + orderedByTurn.get(lobby.getTurn() - 1).getName());
-                        if(lobby.getMembers().get(player_name).getTurn().equals(lobby.getTurn()) && orderedByTurn.contains(lobby.getMembers().get(player_name))){
-                            Integer numberOfChosenCards = orderedByTurn.size()-lobby.getMembers().get(player_name).getTurn()+1;
-                            ArrayList<Card> cardsToChoose = new ArrayList<>();
-                            for(int i=0;i<numberOfChosenCards;i++){
-                                cardsToChoose.add(lobby.getTreasuresDeck().get(i));
-                            }
-                            TreasureCardAdapter morningAdapter = new TreasureCardAdapter(cardsToChoose, new OnItemClickListener() {
-                                @Override
-                                public void onItemClick(View view) {
-                                    AlertDialog.Builder adb = new AlertDialog.Builder(MainGame.this);
-                                    adb.setTitle("Вы хотите выбрать предмет \""+((TextView)view.findViewById(R.id.treasure_text)).getText().toString()+"\"?")
-                                            .setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                                            int card = 0;
-                                                            while(!lobby.getTreasuresDeck().get(card).getName().equals(((TextView)view.findViewById(R.id.treasure_text)).getText().toString())){
-                                                                card+=1;
-                                                            }
-                                                            lobby.getMembers().get(player_name).getTreasures().getClose().add(lobby.getTreasuresDeck().get(card));
-                                                            lobby.getTreasuresDeck().remove(card);
-                                                            if (lobby.getTurn().equals(orderedByTurn.size())){
-                                                                lobby.setGameState("trade");
-                                                                lobby.setTurn(1);
-                                                            }
-                                                            else {
-                                                                lobby.setTurn(lobby.getTurn() + 1);
-                                                            }
-                                                            mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
-                                                            morningTreasureDialog.dismiss();
-                                                        }
-                                                    })
-                                            .setNegativeButton("Нет", null);
-                                    adb.show();
-
+                        if(lobby.getMembers().get(player_name).getTurn().equals(lobby.getTurn())){
+                            if (!(lobby.getMembers().get(player_name).getState().getStatus().equals("dead") || lobby.getMembers().get(player_name).getState().getStatus().equals("unconscious"))) {
+                                Integer numberOfChosenCards = orderedByTurn.size() - lobby.getMembers().get(player_name).getTurn() + 1;
+                                ArrayList<Card> cardsToChoose = new ArrayList<>();
+                                for (int i = 0; i < numberOfChosenCards; i++) {
+                                    cardsToChoose.add(lobby.getTreasuresDeck().get(i));
                                 }
-                            });
+                                TreasureCardAdapter morningAdapter = new TreasureCardAdapter(cardsToChoose, new OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(View view) {
+                                        AlertDialog.Builder adb = new AlertDialog.Builder(MainGame.this);
+                                        adb.setTitle("Вы хотите выбрать предмет \"" + ((TextView) view.findViewById(R.id.treasure_text)).getText().toString() + "\"?")
+                                                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                                        int card = 0;
+                                                        while (!lobby.getTreasuresDeck().get(card).getName().equals(((TextView) view.findViewById(R.id.treasure_text)).getText().toString())) {
+                                                            card += 1;
+                                                        }
+                                                        lobby.getMembers().get(player_name).getTreasures().getClose().add(lobby.getTreasuresDeck().get(card));
+                                                        lobby.getTreasuresDeck().remove(card);
+                                                        if (lobby.getTurn().equals(orderedByTurn.size())) {
+                                                            lobby.setGameState("trade");
+                                                            lobby.setTurn(1);
+                                                        } else {
+                                                            lobby.setTurn(lobby.getTurn() + 1);
+                                                        }
+                                                        mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                                        morningTreasureDialog.dismiss();
+                                                    }
+                                                })
+                                                .setNegativeButton("Нет", null);
+                                        adb.show();
 
-                            morningTreasureDialog.show();
-                            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                            lp.copyFrom(morningTreasureDialog.getWindow().getAttributes());
-                            DisplayMetrics dm = new DisplayMetrics();
-                            MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-                            lp.width = ((Double) (dm.widthPixels*0.7)).intValue();
-                            lp.height = dm.heightPixels;
-                            morningTreasureDialog.getWindow().setAttributes(lp);
-                            morningTreasureDialog.setContentView(getLayoutInflater().inflate(R.layout.morning_treasure_dialog, null));
-                            RecyclerView morningRv = morningTreasureDialog.findViewById(R.id.morning_treasure_rv);
-                            morningRv.setAdapter(morningAdapter);
-                            morningRv.setLayoutManager(new LinearLayoutManager(MainGame.this, LinearLayoutManager.HORIZONTAL, false));
+                                    }
+                                });
+
+                                morningTreasureDialog.show();
+                                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                                lp.copyFrom(morningTreasureDialog.getWindow().getAttributes());
+                                DisplayMetrics dm = new DisplayMetrics();
+                                MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                                lp.width = ((Double) (dm.widthPixels * 0.7)).intValue();
+                                lp.height = dm.heightPixels;
+                                morningTreasureDialog.getWindow().setAttributes(lp);
+                                morningTreasureDialog.setContentView(getLayoutInflater().inflate(R.layout.morning_treasure_dialog, null));
+                                RecyclerView morningRv = morningTreasureDialog.findViewById(R.id.morning_treasure_rv);
+                                morningRv.setAdapter(morningAdapter);
+                                morningRv.setLayoutManager(new LinearLayoutManager(MainGame.this, LinearLayoutManager.HORIZONTAL, false));
+                            }
+                            else{
+                                nextMove("morning");
+                            }
                         }
 
                     }
@@ -798,7 +859,7 @@ public class MainGame extends AppCompatActivity {
                             }
                         }
 
-                        if (orderedByTurn.get(lobby.getTurn()-1).getName().equals(name_with_sharp)){
+                        if (orderedByTurn.get(lobby.getTurn()-1).getName().equals(name_with_sharp) && orderedByTurn.get(lobby.getTurn()-1).getState().getStatus().equals("alive")){
                             trade_nick_clickable = true;
                             Button endTurn = findViewById(R.id.end_turn_button);
                             endTurn.setEnabled(true);
@@ -818,15 +879,202 @@ public class MainGame extends AppCompatActivity {
                                     mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
                                 }
                             });
+                        }else{
+                            System.out.println(name_with_sharp);
+                            System.out.println(orderedByTurn.get(lobby.getTurn()-1).getName());
+                            if (orderedByTurn.get(lobby.getTurn()-1).getName().equals(name_with_sharp)) {
+                                nextMove("trade");
+                            }
                         }
                     }
                     if (lobby.getGameState().equals("noon")){
+                        gameStateTextView.setText("День\n" + "Ходит " + orderedByTurn.get(lobby.getTurn() - 1).getName());
                         shown = false;
                         yoursClose = new ArrayList<>();
                         yoursOpen = new ArrayList<>();
                         theirsOpen = new ArrayList<>();
                         theirsClose = new ArrayList<>();
+
+                        if (lobby.getChosenNavCards() == null){
+                            (findViewById(R.id.navcard_count_text)).setVisibility(View.GONE);
+                        }
+                        else{
+                            (findViewById(R.id.navcard_count_text)).setVisibility(View.VISIBLE);
+                            ((TextView)findViewById(R.id.navcard_count_text)).setText(""+lobby.getChosenNavCards().size());
+                        }
+
+                        if (!actionShown && orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToHash(player_name)) && orderedByTurn.get(lobby.getTurn()-1).getState().getStatus().equals("alive")){
+                            actionShown = !actionShown;
+
+                            actionDialog.show();
+                            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                            lp.copyFrom(actionDialog.getWindow().getAttributes());
+                            DisplayMetrics dm = new DisplayMetrics();
+                            MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                            lp.width = ((Double) (dm.widthPixels*0.7)).intValue();
+                            lp.height = dm.heightPixels;
+                            actionDialog.getWindow().setAttributes(lp);
+                            actionDialog.setContentView(getLayoutInflater().inflate(R.layout.noon_action_dialog, null));
+                            TextView skip_move = actionDialog.findViewById(R.id.action_skip);
+                            skip_move.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    actionDialog.dismiss();
+                                    nextMove("noon");
+                                }
+                            });
+                            TextView pull = actionDialog.findViewById(R.id.action_gresti);
+                            pull.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    actionDialog.dismiss();
+                                    Integer pullCount = 2;
+                                    for (Card q: lobby.getMembers().get(player_name).getTreasures().getOpen()){
+                                        if (q.getName().equals("Весло")){
+                                            pullCount+=1;
+                                        }
+                                    }
+                                    pullCount = Math.min(4, pullCount);
+                                    for (int i=0; i<pullCount; i++){
+                                        pullItems.add(new PullItem(lobby.getNavCardsDeck().get(0), false));
+                                        lobby.getNavCardsDeck().remove(0);
+                                    }
+                                    pullAdapter = new PullAdapter(pullItems, new OnItemClickListener() {
+                                        @Override
+                                        public void onItemClick(View view) {
+                                            Integer posit = Integer.valueOf(((TextView) view.findViewById(R.id.pull_position)).getText().toString());
+                                            pullItems.get(posit).setChoosen(!pullItems.get(posit).isChoosen());
+                                            pullAdapter.notifyDataSetChanged();
+                                        }
+                                    });
+                                    pullDialog.show();
+                                    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                                    lp.copyFrom(pullDialog.getWindow().getAttributes());
+                                    DisplayMetrics dm = new DisplayMetrics();
+                                    MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                                    lp.width = ((Double) (dm.widthPixels*0.7)).intValue();
+                                    lp.height = dm.heightPixels;
+                                    pullDialog.getWindow().setAttributes(lp);
+                                    pullDialog.setContentView(getLayoutInflater().inflate(R.layout.pull_dialog, null));
+                                    RecyclerView pullRv = pullDialog.findViewById(R.id.rv_pull_dialog);
+                                    pullRv.setAdapter(pullAdapter);
+                                    pullRv.setLayoutManager(new LinearLayoutManager(MainGame.this, LinearLayoutManager.HORIZONTAL, false));
+                                    Button submit = pullDialog.findViewById(R.id.pull_confirm);
+                                    submit.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            if (lobby.getChosenNavCards() == null){
+                                                lobby.setChosenNavCards(new ArrayList<>());
+                                            }
+                                            for (PullItem q: pullItems){
+                                                if (q.isChoosen()){
+                                                    lobby.getChosenNavCards().add(q.getNavCard());
+                                                }
+                                            }
+                                            pullItems = new ArrayList<>();
+                                            pullDialog.dismiss();
+                                            lobby.getMembers().get(player_name).getState().setPulled(1);
+                                            nextMove("noon");
+                                        }
+                                    });
+
+
+                                }
+                            });
+                            TextView actionSpecialCard = actionDialog.findViewById(R.id.action_special_card);
+                            haveMedkit = false;
+                            haveUmbrella = false;
+                            haveFlare = false;
+                            for (Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
+                                if (q.getName().equals("Аптечка")){
+                                    haveMedkit = true;
+                                }
+                                if (q.getName().equals("Зонтик")){
+                                    haveUmbrella = true;
+                                }
+                                if (q.getName().equals("Сигнальный пистолет")){
+                                    haveFlare = true;
+                                }
+                            }
+                            if (haveFlare || haveMedkit || haveUmbrella){
+
+                                actionSpecialCard.setTextColor(getResources().getColor(R.color.toolbar));
+                                actionSpecialCard.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        actionDialog.dismiss();
+                                        specialCardDialog.show();
+                                        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                                        lp.copyFrom(specialCardDialog.getWindow().getAttributes());
+                                        DisplayMetrics dm = new DisplayMetrics();
+                                        MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                                        lp.width = ((Double) (dm.widthPixels*0.7)).intValue();
+                                        lp.height = dm.heightPixels;
+                                        specialCardDialog.getWindow().setAttributes(lp);
+                                        specialCardDialog.setContentView(getLayoutInflater().inflate(R.layout.special_card_dialog, null));
+
+                                        if (haveMedkit){
+                                            specialCardDialog.findViewById(R.id.special_aptechka).setVisibility(View.VISIBLE);
+                                            specialCardDialog.findViewById(R.id.special_aptechka).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    specialCardDialog.dismiss();
+                                                    special_action_heal_nick_clickable = true;
+                                                }
+                                            });
+                                        }
+                                        if (haveFlare){
+                                            specialCardDialog.findViewById(R.id.special_pistolet).setVisibility(View.VISIBLE);
+                                            specialCardDialog.findViewById(R.id.special_pistolet).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    for (int n=0; n<3; n++){
+                                                        NavCard q = lobby.getNavCardsDeck().remove(0);
+                                                        lobby.setGull(lobby.getGull()+q.getGull());
+                                                    }
+                                                    specialCardDialog.dismiss();
+                                                        for (Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
+                                                            if (q.getName().equals("Сигнальный пистолет")){
+                                                                lobby.getMembers().get(player_name).getTreasures().getClose().remove(q);
+                                                                break;
+                                                            };
+                                                    }
+                                                    nextMove("noon");
+                                                }
+                                            });
+                                        }
+                                        if (haveUmbrella){
+                                            specialCardDialog.findViewById(R.id.special_zontik).setVisibility(View.VISIBLE);
+                                            specialCardDialog.findViewById(R.id.special_zontik).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    specialCardDialog.dismiss();
+                                                    special_action_umbrella_nick_clickable = true;
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+
+
+
+
+                        }else{
+                            if (!orderedByTurn.get(lobby.getTurn()-1).getState().getStatus().equals("alive") && orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToHash(player_name))){
+                                nextMove("noon");
+                            }
+                        }
+
+
                     }
+                    if (lobby.getGameState().equals("evening")){
+
+                    }
+
+
+
+
 
                     if (!(yoursCloseAdapter==null)) {
                         yoursCloseAdapter.notifyDataSetChanged();
@@ -837,10 +1085,6 @@ public class MainGame extends AppCompatActivity {
                     if (!(theirsOpenAdapter==null)) {
                         theirsOpenAdapter.notifyDataSetChanged();
                     }
-
-
-
-
                     adapter.notifyDataSetChanged();
                     closedAdapter.notifyDataSetChanged();
                     openAdapter.notifyDataSetChanged();
@@ -870,6 +1114,58 @@ public class MainGame extends AppCompatActivity {
     }
     public static String changeSpaceToHash(String s){
         return s.substring(0, s.lastIndexOf(" "))+"#"+s.substring(s.lastIndexOf(" ")+1);
+    }
+
+    public void nextMove(String curr_stage){
+        if (lobby.getTurn().equals(orderedByTurn.size())){
+            if (curr_stage.equals("noon")){
+                lobby.setGameState("evening");
+            }
+            if(curr_stage.equals("morning")){
+                lobby.setGameState("trade");
+            }
+            if(curr_stage.equals("trade")){
+                lobby.setGameState("noon");
+            }
+            lobby.setTurn(1);
+        }
+        else {
+            lobby.setTurn(lobby.getTurn() + 1);
+        }
+        mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+    }
+
+    public static String difference(String str1, String str2) {
+        if (str1 == null) {
+            return str2;
+        }
+        if (str2 == null) {
+            return str1;
+        }
+        String at = indexOfDifference(str1, str2);
+        if (at.equals("INDEX_NOT_FOUND")) {
+            return "EMPTY";
+        }
+        return str2.substring(Integer.valueOf(at));
+    }
+
+    public static String indexOfDifference(CharSequence cs1, CharSequence cs2) {
+        if (cs1 == cs2) {
+            return "INDEX_NOT_FOUND";
+        }
+        if (cs1 == null || cs2 == null) {
+            return "0";
+        }
+        int i;
+        for (i = 0; i < cs1.length() && i < cs2.length(); ++i) {
+            if (cs1.charAt(i) != cs2.charAt(i)) {
+                break;
+            }
+        }
+        if (i < cs2.length() || i < cs1.length()) {
+            return ""+i;
+        }
+        return "INDEX_NOT_FOUND";
     }
 
 }

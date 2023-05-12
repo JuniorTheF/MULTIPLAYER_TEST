@@ -74,7 +74,20 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
             holder.trauma.setText(""+member.getState().getInjuries());
         }
         holder.power.setText(""+member.getStats().getPower());
-        holder.nick.setText(member.getName());
+        String status = "";
+        switch (member.getState().getStatus()){
+            case "alive":
+                status = "жив";
+                break;
+            case "dead":
+                status = "мертв";
+                break;
+            case "unconscious":
+                status = "без сознания";
+                break;
+
+        }
+        holder.nick.setText(member.getName()+"\n"+status);
         holder.nick2.setText(member.getName());
         switch (member.getStats().getRole()){
             case "Миледи":
