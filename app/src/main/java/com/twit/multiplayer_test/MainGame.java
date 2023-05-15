@@ -1210,7 +1210,7 @@ public class MainGame extends AppCompatActivity {
                                         DisplayMetrics dm = new DisplayMetrics();
                                         MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
                                         lp.width = ((Double) (dm.widthPixels*0.8)).intValue();
-                                        lp.height = dm.heightPixels;
+                                        lp.height = ((Double) (dm.heightPixels*0.9)).intValue();;
                                         addWeaponDialog.getWindow().setAttributes(lp);
                                         addWeaponDialog.setContentView(getLayoutInflater().inflate(R.layout.add_weapon_dialog, null));
                                         for (Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
