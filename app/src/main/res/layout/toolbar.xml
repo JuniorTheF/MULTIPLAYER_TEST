@@ -30,7 +30,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginRight="5dp"
-        android:background="@drawable/create_lobby"
+        android:background="@drawable/button_number_of_players"
         android:text="+"
         android:textColor="@color/text"
         android:textSize="33sp" />
