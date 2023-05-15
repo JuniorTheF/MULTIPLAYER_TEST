@@ -47,6 +47,8 @@ public class MainGame extends AppCompatActivity {
     boolean trade_nick_clickable = false;
     boolean special_action_heal_nick_clickable = false;
     boolean special_action_umbrella_nick_clickable = false;
+    boolean noon_action_rob = false;
+    boolean noon_action_change_seat = false;
     boolean haveMedkit = false;
     boolean haveUmbrella = false;
     boolean haveFlare = false;
@@ -147,7 +149,12 @@ public class MainGame extends AppCompatActivity {
                         break;
                 }
                 RecyclerView rv_hero_enlarge = heroEnlarge.findViewById(R.id.rv_hero_enlarge);
-                TreasureCardAdapter enlarge_adapter = new TreasureCardAdapter(createWithThatMember.getTreasures().getOpen(), null);
+                TreasureCardAdapter enlarge_adapter = new TreasureCardAdapter(createWithThatMember.getTreasures().getOpen(), new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view) {
+
+                    }
+                });
                 rv_hero_enlarge.setAdapter(enlarge_adapter);
                 rv_hero_enlarge.setLayoutManager(new LinearLayoutManager(MainGame.this, LinearLayoutManager.HORIZONTAL, false));
                 if (createWithThatMember.getTreasures().getClose() != null) {
@@ -331,6 +338,25 @@ public class MainGame extends AppCompatActivity {
                     lobby.getMembers().get(receiver).getTreasures().getOpen().add(umb);
                         nextMove("noon");
                 }
+                if (noon_action_rob || noon_action_change_seat){
+                    Brawl noon_action_brawl = new Brawl();
+                    if (noon_action_change_seat){
+                        noon_action_brawl.setGoal("change");
+                    }
+                    if (noon_action_rob){
+                        noon_action_brawl.setGoal("rob");
+                    }
+                    noon_action_brawl.setState("waitForReaction");
+                    ArrayList<Member> attacker = new ArrayList<>();
+                    ArrayList<Member> defender = new ArrayList<>();
+                    attacker.add(lobby.getMembers().get(player_name));
+                    defender.add(lobby.getMembers().get(receiver));
+                    noon_action_brawl.setAttacker(attacker);
+                    noon_action_brawl.setDefender(defender);
+                    noon_action_rob = false;
+                    noon_action_change_seat = false;
+                    mDatabase.child("lobby").child(lobbyNumber).child("brawl").setValue(noon_action_brawl);
+                }
             }
         });
         FlexboxLayoutManager manager = new FlexboxLayoutManager(this);
@@ -425,8 +451,6 @@ public class MainGame extends AppCompatActivity {
                     Integer gulls = lobby.getGull();
                     gulls = Math.min(gulls, 4);
                     ((ImageView)MainGame.this.findViewById(R.id.gulls_main)).setImageResource(getResId("gulls"+gulls, R.drawable.class));
-
-
                     orderedBySeat.clear();
                     orderedByTurn.clear();
                     closed.clear();
@@ -1056,6 +1080,23 @@ public class MainGame extends AppCompatActivity {
                                     }
                                 });
                             }
+
+                            TextView rob = findViewById(R.id.action_rob);
+                            rob.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    actionDialog.dismiss();
+                                    noon_action_rob = true;
+                                }
+                            });
+                            TextView changeSeat = findViewById(R.id.action_fight);
+                            changeSeat.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    actionDialog.dismiss();
+                                    noon_action_change_seat = true;
+                                }
+                            });
 
 
 

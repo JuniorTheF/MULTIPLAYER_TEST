@@ -173,6 +173,7 @@ public class LobbyWaitHost extends AppCompatActivity {
                 new Card("treasure", "Весло",  "veslo"),
                 new Card("treasure", "Весло",  "veslo"),
                 new Card("treasure", "Дубинка",  "dubinka"),
+                new Card("treasure", "Гарпун", "garpun"),
                 new Card("treasure", "Нож",  "nozh"),
                 new Card("treasure", "Сигнальный пистолет",  "pistolet"),
                 new Card("treasure", "Пачка денег",  "dengi"),

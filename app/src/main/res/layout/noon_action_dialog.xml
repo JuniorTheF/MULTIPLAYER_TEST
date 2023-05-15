@@ -60,7 +60,7 @@
         android:textSize="25sp"
         android:fontFamily="@font/wiguru"
         android:textColor="@color/toolbar"
-        android:text="Драться"
+        android:text="Поменяться местами"
         android:paddingRight="40dp"
         android:paddingLeft="40dp"
         android:paddingBottom="5dp"
