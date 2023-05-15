@@ -161,12 +161,12 @@ class Brawl{
     }
 
     String goal;
-    ArrayList<Member> attacker;
-    ArrayList<Member> defender;
+    ArrayList<BrawlMember> attacker;
+    ArrayList<BrawlMember> defender;
 
     Brawl(){}
 
-    public Brawl(String state, ArrayList<Member> attacker, ArrayList<Member> defender, String goal) {
+    public Brawl(String state, ArrayList<BrawlMember> attacker, ArrayList<BrawlMember> defender, String goal) {
         this.state = state;
         this.attacker = attacker;
         this.defender = defender;
@@ -182,19 +182,19 @@ class Brawl{
         this.state = state;
     }
 
-    public ArrayList<Member> getAttacker() {
+    public ArrayList<BrawlMember> getAttacker() {
         return attacker;
     }
 
-    public void setAttacker(ArrayList<Member> attacker) {
+    public void setAttacker(ArrayList<BrawlMember> attacker) {
         this.attacker = attacker;
     }
 
-    public ArrayList<Member> getDefender() {
+    public ArrayList<BrawlMember> getDefender() {
         return defender;
     }
 
-    public void setDefender(ArrayList<Member> defender) {
+    public void setDefender(ArrayList<BrawlMember> defender) {
         this.defender = defender;
     }
 }

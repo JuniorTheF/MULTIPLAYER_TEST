@@ -71,15 +71,16 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/wiguru"
-                    android:padding="5dp"
+                    android:padding="3dp"
                     android:shadowColor="@color/black"
                     android:shadowDx="0"
                     android:shadowDy="0"
                     android:shadowRadius="5"
-                    android:text="Команда"
+                    android:text="Команда\nОбщая сила:228"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
 
@@ -102,6 +103,7 @@
         </LinearLayout>
 
         <Button
+            android:visibility="gone"
             android:id="@+id/brawl_weapon_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -150,7 +152,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
-
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -166,15 +167,16 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/wiguru"
-                    android:padding="5dp"
+                    android:padding="3dp"
                     android:shadowColor="@color/black"
                     android:shadowDx="0"
                     android:shadowDy="0"
                     android:shadowRadius="5"
-                    android:text="Команда"
+                    android:text="Команда\nОбщая сила:228"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
 
@@ -200,7 +202,7 @@
         </LinearLayout>
 
         <Button
-            android:visibility="gone"
+            android:visibility="visible"
             android:id="@+id/brawl_acquiesce"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -209,12 +211,29 @@
             android:background="@drawable/text_background_less_radius"
             android:fontFamily="@font/wiguru"
             android:padding="7dp"
-            android:text="Согласиться"
+            android:text="Уступить"
             android:textColor="@color/text"
             android:textFontWeight="999"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/brawl_refuse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/text_background_less_radius"
+            android:fontFamily="@font/wiguru"
+            android:padding="7dp"
+            android:text="Драться"
+            android:textColor="@color/text"
+            android:textFontWeight="999"
+            android:textSize="20sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:visibility="gone"

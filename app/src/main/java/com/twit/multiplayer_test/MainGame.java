@@ -11,11 +11,9 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -33,22 +31,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Map;
-import java.util.SortedMap;
 
 public class MainGame extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
     boolean trade_nick_clickable = false;
+    boolean canJoin = true;
     boolean special_action_heal_nick_clickable = false;
     boolean special_action_umbrella_nick_clickable = false;
     boolean noon_action_rob = false;
     boolean noon_action_change_seat = false;
+    boolean brawl_showed = false;
     boolean haveMedkit = false;
     boolean haveUmbrella = false;
     boolean haveFlare = false;
@@ -65,13 +61,19 @@ public class MainGame extends AppCompatActivity {
     TradeItemAdapter yoursCloseAdapter;
     TradeItemAdapter yoursOpenAdapter;
     TradeItemAdapter theirsOpenAdapter;
+    BrawlMemberAdapter attackerAdapter;
+    BrawlMemberAdapter defenderAdapter;
     PullAdapter pullAdapter;
     PullDialog pullDialog;
     TreasureDialog treasureDialog;
     TradeDialog tradeDialog;
     ActionDialog actionDialog;
+    BrawlDialog brawlDialog;
+    AddWeaponDialog addWeaponDialog;
     SpecialCardDialog specialCardDialog;
     MorningTreasureDialog morningTreasureDialog;
+    ArrayList<BrawlMember> attacker;
+    ArrayList<BrawlMember> defender;
     ArrayList<Card> closed;
     ArrayList<Card> open;
     ArrayList<PullItem> pullItems;
@@ -105,6 +107,8 @@ public class MainGame extends AppCompatActivity {
         theirsOpen = new ArrayList<>();
         theirsClose = new ArrayList<>();
         pullItems = new ArrayList<>();
+        attacker = new ArrayList<>();
+        defender = new ArrayList<>();
         RecyclerView rv = findViewById(R.id.rv_onboardheroes);
 
         adapter = new HeroAdapter(orderedBySeat, new OnItemClickListener() {
@@ -347,10 +351,8 @@ public class MainGame extends AppCompatActivity {
                         noon_action_brawl.setGoal("rob");
                     }
                     noon_action_brawl.setState("waitForReaction");
-                    ArrayList<Member> attacker = new ArrayList<>();
-                    ArrayList<Member> defender = new ArrayList<>();
-                    attacker.add(lobby.getMembers().get(player_name));
-                    defender.add(lobby.getMembers().get(receiver));
+                    attacker.add(new BrawlMember(lobby.getMembers().get(player_name), false));
+                    defender.add(new BrawlMember(lobby.getMembers().get(receiver), false));
                     noon_action_brawl.setAttacker(attacker);
                     noon_action_brawl.setDefender(defender);
                     noon_action_rob = false;
@@ -365,6 +367,8 @@ public class MainGame extends AppCompatActivity {
         manager.setAlignItems(AlignItems.FLEX_START);
         rv.setLayoutManager(manager);
         rv.setAdapter(adapter);
+        brawlDialog = new BrawlDialog(MainGame.this);
+        brawlDialog.setCanceledOnTouchOutside(false);
         treasureDialog = new TreasureDialog(MainGame.this);
         treasureDialog.setCanceledOnTouchOutside(true);
         morningTreasureDialog = new MorningTreasureDialog(MainGame.this);
@@ -375,37 +379,42 @@ public class MainGame extends AppCompatActivity {
         actionDialog.setCanceledOnTouchOutside(false);
         pullDialog = new PullDialog(MainGame.this);
         pullDialog.setCanceledOnTouchOutside(false);
+        addWeaponDialog = new AddWeaponDialog(MainGame.this);
+        addWeaponDialog.setCanceledOnTouchOutside(true);
         specialCardDialog = new SpecialCardDialog(MainGame.this);
         specialCardDialog.setCanceledOnTouchOutside(false);
+        attackerAdapter = new BrawlMemberAdapter(attacker);
+        defenderAdapter = new BrawlMemberAdapter(defender);
         closedAdapter = new TreasureCardAdapter(closed, new OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-                String type = ((TextView)view.findViewById(R.id.treasure_text)).getText().toString();
-                if(!(type.equals("Аптечка") || type.equals("Зонтик") || type.equals("Сигнальный пистолет"))) {
-                    AlertDialog.Builder adb = new AlertDialog.Builder(MainGame.this);
-                    adb.setTitle("Вы хотите сделать предмет \"" + ((TextView) view.findViewById(R.id.treasure_text)).getText().toString() + "\" открытым?")
-                            .setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    String clicked = ((TextView) view.findViewById(R.id.treasure_text)).getText().toString();
-                                    ArrayList<Card> open = new ArrayList<>(lobby.getMembers().get(player_name).getTreasures().getOpen());
-                                    ArrayList<Card> close = new ArrayList<>(lobby.getMembers().get(player_name).getTreasures().getClose());
-                                    for (Card q : lobby.getMembers().get(player_name).getTreasures().getClose()) {
-                                        if (q.getName().equals(clicked)) {
-                                            close.remove(q);
-                                            open.add(q);
-                                            break;
+                if (lobby.getBrawl() == null) {
+                    String type = ((TextView) view.findViewById(R.id.treasure_text)).getText().toString();
+                    if (!(type.equals("Аптечка") || type.equals("Зонтик") || type.equals("Сигнальный пистолет"))) {
+                        AlertDialog.Builder adb = new AlertDialog.Builder(MainGame.this);
+                        adb.setTitle("Вы хотите сделать предмет \"" + ((TextView) view.findViewById(R.id.treasure_text)).getText().toString() + "\" открытым?")
+                                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        String clicked = ((TextView) view.findViewById(R.id.treasure_text)).getText().toString();
+                                        ArrayList<Card> open = new ArrayList<>(lobby.getMembers().get(player_name).getTreasures().getOpen());
+                                        ArrayList<Card> close = new ArrayList<>(lobby.getMembers().get(player_name).getTreasures().getClose());
+                                        for (Card q : lobby.getMembers().get(player_name).getTreasures().getClose()) {
+                                            if (q.getName().equals(clicked)) {
+                                                close.remove(q);
+                                                open.add(q);
+                                                break;
+                                            }
                                         }
-                                    }
-                                    mDatabase.child("lobby").child(lobbyNumber).child("members").child(player_name).child("treasures").setValue(new Treasures(open, close));
+                                        mDatabase.child("lobby").child(lobbyNumber).child("members").child(player_name).child("treasures").setValue(new Treasures(open, close));
 
-                                }
-                            })
-                            .setNegativeButton("Нет", null);
-                    adb.show();
-                }
-                else{
-                    Toast.makeText(MainGame.this, "Можно использовать только днем", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .setNegativeButton("Нет", null);
+                        adb.show();
+                    } else {
+                        Toast.makeText(MainGame.this, "Можно использовать только днем", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -784,8 +793,8 @@ public class MainGame extends AppCompatActivity {
                                         ArrayList<Card> senderClose = lobby.getDialog().getSender_close();
                                         ArrayList<Card> receiverOpen = lobby.getDialog().getReceiver_open();
                                         ArrayList<Card> receiverClose = lobby.getDialog().getReceiver_close();
-                                        String receiverName = changeHashToSpace(lobby.getDialog().getReciever().getName());
-                                        String senderName = changeHashToSpace(lobby.getDialog().getSender().getName());
+                                        String receiverName = changeSharpToSpace(lobby.getDialog().getReciever().getName());
+                                        String senderName = changeSharpToSpace(lobby.getDialog().getSender().getName());
                                         if (senderOpen!=null) {
                                             for (Card q : senderOpen) {
                                                 if (lobby.getMembers().get(receiverName).getTreasures().getOpen()!= null) {
@@ -927,7 +936,7 @@ public class MainGame extends AppCompatActivity {
                             ((TextView)findViewById(R.id.navcard_count_text)).setText(""+lobby.getChosenNavCards().size());
                         }
 
-                        if (!actionShown && orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToHash(player_name)) && orderedByTurn.get(lobby.getTurn()-1).getState().getStatus().equals("alive")){
+                        if (!actionShown && orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToSharp(player_name)) && orderedByTurn.get(lobby.getTurn()-1).getState().getStatus().equals("alive")){
                             actionShown = !actionShown;
 
                             actionDialog.show();
@@ -1081,7 +1090,7 @@ public class MainGame extends AppCompatActivity {
                                 });
                             }
 
-                            TextView rob = findViewById(R.id.action_rob);
+                            TextView rob = actionDialog.findViewById(R.id.action_rob);
                             rob.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
@@ -1089,7 +1098,7 @@ public class MainGame extends AppCompatActivity {
                                     noon_action_rob = true;
                                 }
                             });
-                            TextView changeSeat = findViewById(R.id.action_fight);
+                            TextView changeSeat = actionDialog.findViewById(R.id.action_fight);
                             changeSeat.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
@@ -1097,20 +1106,244 @@ public class MainGame extends AppCompatActivity {
                                     noon_action_change_seat = true;
                                 }
                             });
-
-
-
-
                         }else{
-                            if (!orderedByTurn.get(lobby.getTurn()-1).getState().getStatus().equals("alive") && orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToHash(player_name))){
+                            if (!orderedByTurn.get(lobby.getTurn()-1).getState().getStatus().equals("alive") && orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToSharp(player_name))){
                                 nextMove("noon");
                             }
+                        }
+                        if(lobby.getBrawl()!=null){
+                            if (brawl_showed!=true){
+                                brawl_showed = true;
+                                brawlDialog.show();
+                                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                                lp.copyFrom(brawlDialog.getWindow().getAttributes());
+                                DisplayMetrics dm = new DisplayMetrics();
+                                MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                                lp.width = ((Double) (dm.widthPixels*0.9)).intValue();
+                                lp.height = dm.heightPixels;
+                                brawlDialog.getWindow().setAttributes(lp);
+                                brawlDialog.setContentView(getLayoutInflater().inflate(R.layout.brawl_dialog, null));
+                                RecyclerView attackRv = brawlDialog.findViewById(R.id.attacker_team_rv);
+                                RecyclerView defendRv = brawlDialog.findViewById(R.id.defender_team_rv);
+                                attackRv.setAdapter(attackerAdapter);
+                                attackRv.setLayoutManager(new LinearLayoutManager(MainGame.this, LinearLayoutManager.VERTICAL, false));
+                                defendRv.setAdapter(defenderAdapter);
+                                defendRv.setLayoutManager(new LinearLayoutManager(MainGame.this, LinearLayoutManager.VERTICAL, false));
+                                if (lobby.getBrawl().getGoal().equals("rob")){
+                                    ((TextView)brawlDialog.findViewById(R.id.brawl_state)).setText("Ограбление");
+                                }
+                                if (lobby.getBrawl().getGoal().equals("change")){
+                                    ((TextView)brawlDialog.findViewById(R.id.brawl_state)).setText("Смена мест");
+                                }
+                                if (lobby.getBrawl().getDefender().get(0).getMember().getName().equals(changeSpaceToSharp(player_name))){
+                                    Button acquiesce = brawlDialog.findViewById(R.id.brawl_acquiesce);
+                                    Button refuse = brawlDialog.findViewById(R.id.brawl_refuse);
+                                    acquiesce.setVisibility(View.VISIBLE);
+                                    acquiesce.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            acquiesce.setVisibility(View.GONE);
+                                            refuse.setVisibility(View.GONE);
+                                            brawlDialog.dismiss();
+                                            lobby.getBrawl().setState("acquiesce");
+                                            mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                        }
+                                    });
+                                    refuse.setVisibility(View.VISIBLE);
+                                    refuse.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            acquiesce.setVisibility(View.GONE);
+                                            refuse.setVisibility(View.GONE);
+                                            lobby.getBrawl().setState("brawl");
+                                            mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                        }
+                                    });
+                                }
+                            }
+
+                            attacker.clear();
+                            defender.clear();
+                            Integer attackerPower = 0;
+                            Integer defenderPower = 0;
+
+                            for (BrawlMember q: lobby.getBrawl().getDefender()){
+                                if (q.getMember().getName().equals(changeSpaceToSharp(player_name))){
+                                    canJoin = false;
+                                }
+                                defender.add(q);
+                                defenderPower += calculatePower(q);
+                            }
+                            for (BrawlMember q: lobby.getBrawl().getAttacker()){
+                                if (q.getMember().getName().equals(changeSpaceToSharp(player_name))){
+                                    canJoin = false;
+                                }
+                                attacker.add(q);
+                                attackerPower += calculatePower(q);
+                            }
+
+                            ((TextView) brawlDialog.findViewById(R.id.attacker_text_view)).setText(""+attackerPower);
+                            ((TextView) brawlDialog.findViewById(R.id.defender_text_view)).setText(""+defenderPower);
+
+                            if (lobby.getBrawl().getState().equals("brawl")){
+                                ((TextView) brawlDialog.findViewById(R.id.brawl_state)).setText("Драка");
+                                Button joinAttacker = brawlDialog.findViewById(R.id.attacker_team_join);
+                                Button joinDefender = brawlDialog.findViewById(R.id.defender_team_join);
+                                Button readyToFight = brawlDialog.findViewById(R.id.brawl_ready);
+                                Button addWeapon = brawlDialog.findViewById(R.id.brawl_weapon_add);
+                                if (canJoin) {
+                                    joinAttacker.setVisibility(View.VISIBLE);
+                                    joinDefender.setVisibility(View.VISIBLE);
+                                }else{
+                                    joinAttacker.setVisibility(View.GONE);
+                                    joinDefender.setVisibility(View.GONE);
+                                    readyToFight.setVisibility(View.VISIBLE);
+                                    addWeapon.setVisibility(View.VISIBLE);
+
+                                }
+                                addWeapon.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        addWeaponDialog.show();
+                                        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                                        lp.copyFrom(addWeaponDialog.getWindow().getAttributes());
+                                        DisplayMetrics dm = new DisplayMetrics();
+                                        MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                                        lp.width = ((Double) (dm.widthPixels*0.8)).intValue();
+                                        lp.height = dm.heightPixels;
+                                        addWeaponDialog.getWindow().setAttributes(lp);
+                                        addWeaponDialog.setContentView(getLayoutInflater().inflate(R.layout.add_weapon_dialog, null));
+                                        for (Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
+                                            switch (q.getName()){
+                                                case "Гарпун":
+                                                    addWeaponDialog.findViewById(R.id.garpun).setVisibility(View.VISIBLE);
+                                                    addWeaponDialog.findViewById(R.id.garpun).setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
+                                                                if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Гарпун")){
+                                                                    lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
+                                                                    lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                                                    return;
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                    break;
+                                                case "Нож":
+                                                    addWeaponDialog.findViewById(R.id.nozh).setVisibility(View.VISIBLE);
+                                                    addWeaponDialog.findViewById(R.id.nozh).setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
+                                                                if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Нож")){
+                                                                    lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
+                                                                    lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                                                    return;
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                    break;
+                                                case "Сигнальная ракета":
+                                                    addWeaponDialog.findViewById(R.id.special_pistolet).setVisibility(View.VISIBLE);
+                                                    addWeaponDialog.findViewById(R.id.special_pistolet).setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
+                                                                if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Сигнальный пистолет")){
+                                                                    lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
+                                                                    lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                                                    return;
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                    break;
+                                                case "Дубинка":
+                                                    addWeaponDialog.findViewById(R.id.dubinka).setVisibility(View.VISIBLE);
+                                                    addWeaponDialog.findViewById(R.id.dubinka).setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
+                                                                if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Дубинка")){
+                                                                    lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
+                                                                    lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                                                    return;
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                    break;
+                                                case "Весло":
+                                                    addWeaponDialog.findViewById(R.id.veslo).setVisibility(View.VISIBLE);
+                                                    addWeaponDialog.findViewById(R.id.veslo).setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View view) {
+                                                            for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
+                                                                if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Весло")){
+                                                                    lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
+                                                                    lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                                                    return;
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                    break;
+                                            }
+                                        }
+
+
+                                    }
+                                });
+                                readyToFight.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        for (BrawlMember q: lobby.getBrawl().getDefender()){
+                                            if (q.getMember().getName().equals(changeSpaceToSharp(player_name))){
+                                                q.setReady(true);
+                                            }
+                                        }
+                                        for (BrawlMember q: lobby.getBrawl().getAttacker()){
+                                            if (q.getMember().getName().equals(changeSpaceToSharp(player_name))){
+                                                q.setReady(true);
+                                            }
+                                        }
+                                        mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                    }
+                                });
+                                joinAttacker.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        lobby.getBrawl().getAttacker().add(new BrawlMember(lobby.getMembers().get(player_name), false));
+                                        mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                    }
+                                });
+                                joinDefender.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        lobby.getBrawl().getDefender().add(new BrawlMember(lobby.getMembers().get(player_name), false));
+                                        mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
+                                    }
+                                });
+
+
+                            }
+                        }else{
+                            brawlDialog.dismiss();
                         }
 
 
                     }
                     if (lobby.getGameState().equals("evening")){
-
+                        canJoin = true;
+                        actionShown = false;
+                        brawl_showed = false;
                     }
 
 
@@ -1125,6 +1358,12 @@ public class MainGame extends AppCompatActivity {
                     }
                     if (!(theirsOpenAdapter==null)) {
                         theirsOpenAdapter.notifyDataSetChanged();
+                    }
+                    if(!(attackerAdapter==null)){
+                        attackerAdapter.notifyDataSetChanged();
+                    }
+                    if(!(defenderAdapter==null)){
+                        defenderAdapter.notifyDataSetChanged();
                     }
                     adapter.notifyDataSetChanged();
                     closedAdapter.notifyDataSetChanged();
@@ -1150,10 +1389,10 @@ public class MainGame extends AppCompatActivity {
         }
     }
 
-    public static String changeHashToSpace(String s){
+    public static String changeSharpToSpace(String s){
         return s.substring(0, s.lastIndexOf("#"))+" "+s.substring(s.lastIndexOf("#")+1);
     }
-    public static String changeSpaceToHash(String s){
+    public static String changeSpaceToSharp(String s){
         return s.substring(0, s.lastIndexOf(" "))+"#"+s.substring(s.lastIndexOf(" ")+1);
     }
 
@@ -1176,38 +1415,29 @@ public class MainGame extends AppCompatActivity {
         mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
     }
 
-    public static String difference(String str1, String str2) {
-        if (str1 == null) {
-            return str2;
-        }
-        if (str2 == null) {
-            return str1;
-        }
-        String at = indexOfDifference(str1, str2);
-        if (at.equals("INDEX_NOT_FOUND")) {
-            return "EMPTY";
-        }
-        return str2.substring(Integer.valueOf(at));
-    }
-
-    public static String indexOfDifference(CharSequence cs1, CharSequence cs2) {
-        if (cs1 == cs2) {
-            return "INDEX_NOT_FOUND";
-        }
-        if (cs1 == null || cs2 == null) {
-            return "0";
-        }
-        int i;
-        for (i = 0; i < cs1.length() && i < cs2.length(); ++i) {
-            if (cs1.charAt(i) != cs2.charAt(i)) {
-                break;
+    private Integer calculatePower(BrawlMember brawlMember){
+        Integer toReturn = 0;
+        toReturn += brawlMember.getMember().getStats().getPower();
+        for (Card q: brawlMember.getMember().getTreasures().getOpen()) {
+            if (q.getName().equals("Нож")) {
+                toReturn += 3;
+            }
+            if (q.getName().equals("Бита")) {
+                toReturn += 2;
+            }
+            if (q.getName().equals("Весло")) {
+                toReturn += 1;
+            }
+            if (q.getName().equals("Гарпун")) {
+                toReturn += 4;
+            }
+            if (q.getName().equals("Сигнальный пистолет")) {
+                toReturn += 8;
             }
         }
-        if (i < cs2.length() || i < cs1.length()) {
-            return ""+i;
-        }
-        return "INDEX_NOT_FOUND";
+        return toReturn;
     }
+
 
 }
 
