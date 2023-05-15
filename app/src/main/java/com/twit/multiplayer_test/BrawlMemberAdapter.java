@@ -31,7 +31,7 @@ public class BrawlMemberAdapter extends RecyclerView.Adapter<BrawlMemberAdapter.
             if (q.getName().equals("Нож")) {
                 brawlerPower += "+3";
             }
-            if (q.getName().equals("Бита")) {
+            if (q.getName().equals("Дубинка")) {
                 brawlerPower += "+2";
             }
             if (q.getName().equals("Весло")) {

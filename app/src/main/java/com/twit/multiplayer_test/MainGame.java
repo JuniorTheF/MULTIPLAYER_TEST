@@ -1182,8 +1182,8 @@ public class MainGame extends AppCompatActivity {
                                 attackerPower += calculatePower(q);
                             }
 
-                            ((TextView) brawlDialog.findViewById(R.id.attacker_text_view)).setText(""+attackerPower);
-                            ((TextView) brawlDialog.findViewById(R.id.defender_text_view)).setText(""+defenderPower);
+                            ((TextView) brawlDialog.findViewById(R.id.attacker_power)).setText("Общая сила: "+attackerPower);
+                            ((TextView) brawlDialog.findViewById(R.id.defender_power)).setText("Общая сила: "+defenderPower);
 
                             if (lobby.getBrawl().getState().equals("brawl")){
                                 ((TextView) brawlDialog.findViewById(R.id.brawl_state)).setText("Драка");
@@ -1422,7 +1422,7 @@ public class MainGame extends AppCompatActivity {
             if (q.getName().equals("Нож")) {
                 toReturn += 3;
             }
-            if (q.getName().equals("Бита")) {
+            if (q.getName().equals("Дубинка")) {
                 toReturn += 2;
             }
             if (q.getName().equals("Весло")) {

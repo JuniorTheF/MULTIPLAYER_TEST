@@ -47,7 +47,7 @@
             android:paddingLeft="10dp"
             android:paddingTop="3dp"
             android:paddingBottom="3dp"
-            android:text="Нападающий"
+            android:text="Команда нападающих"
             android:textColor="@color/donotagree"
             android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -71,6 +71,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/attacker_power"
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -80,7 +81,7 @@
                     android:shadowDx="0"
                     android:shadowDy="0"
                     android:shadowRadius="5"
-                    android:text="Команда\nОбщая сила:228"
+                    android:text="Общая сила:228"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
 
@@ -144,7 +145,7 @@
             android:paddingLeft="10dp"
             android:paddingTop="3dp"
             android:paddingBottom="3dp"
-            android:text="Защищающийся"
+            android:text="Команда защищающихся"
             android:textColor="@color/donotagree"
             android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -167,6 +168,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/defender_power"
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -176,7 +178,7 @@
                     android:shadowDx="0"
                     android:shadowDy="0"
                     android:shadowRadius="5"
-                    android:text="Команда\nОбщая сила:228"
+                    android:text="Общая сила:228"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
 
@@ -202,7 +204,7 @@
         </LinearLayout>
 
         <Button
-            android:visibility="visible"
+            android:visibility="gone"
             android:id="@+id/brawl_acquiesce"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -231,7 +233,7 @@
             android:textColor="@color/text"
             android:textFontWeight="999"
             android:textSize="20sp"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
