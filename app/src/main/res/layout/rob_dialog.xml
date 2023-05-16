@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:background="@drawable/gamebg">
+
+    <TextView
+        android:layout_marginTop="10dp"
+        android:text="Выберите карту, которую хотите украсть"
+        android:background="@drawable/text_background_less_radius"
+        android:textSize="30sp"
+        android:fontFamily="@font/wiguru"
+        android:textColor="@color/text"
+        android:padding="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:padding="7dp"
+            android:background="@drawable/text_background_less_radius"
+            android:textSize="20sp"
+            android:fontFamily="@font/wiguru"
+            android:textColor="@color/text"
+            android:text="Открытые припасы"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rob_open_rv"/>
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:padding="7dp"
+            android:background="@drawable/text_background_less_radius"
+            android:textSize="30sp"
+            android:fontFamily="@font/wiguru"
+            android:textColor="@color/text"
+            android:text="Закрытые припасы"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/rob_close_text"
+            android:fontFamily="@font/wiguru"
+            android:padding="3dp"
+            android:shadowColor="@color/black"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"
+            android:text="Закрытых сокровищ: 15"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/rob_close_button"
+            android:padding="10dp"
+            android:textColor="@color/text"
+            android:fontFamily="@font/wiguru"
+            android:textSize="18sp"
+            android:text="Украсть"
+            android:background="@drawable/button_backgound_finish_turn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

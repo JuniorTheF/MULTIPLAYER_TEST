@@ -34,10 +34,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Random;
 
 public class MainGame extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
+    boolean robbery = false;
     boolean trade_nick_clickable = false;
     boolean canJoin = true;
     boolean special_action_heal_nick_clickable = false;
@@ -69,6 +71,8 @@ public class MainGame extends AppCompatActivity {
     TradeDialog tradeDialog;
     ActionDialog actionDialog;
     BrawlDialog brawlDialog;
+    RobDialog robDialog;
+    ChooseNavCardDialog chooseNavCardDialog;
     AddWeaponDialog addWeaponDialog;
     SpecialCardDialog specialCardDialog;
     MorningTreasureDialog morningTreasureDialog;
@@ -84,8 +88,12 @@ public class MainGame extends AppCompatActivity {
     TextView yourTradeNick;
     TextView theirTradeNick;
     TextView theirsCloseText;
+    ArrayList<PullItem> listOfNavCards;
     boolean shown = false;
+    Member chooser = null;
     boolean actionShown = false;
+    Random random_method = new Random();
+    Member robbedMember;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +117,7 @@ public class MainGame extends AppCompatActivity {
         pullItems = new ArrayList<>();
         attacker = new ArrayList<>();
         defender = new ArrayList<>();
+        listOfNavCards = new ArrayList<>();
         RecyclerView rv = findViewById(R.id.rv_onboardheroes);
 
         adapter = new HeroAdapter(orderedBySeat, new OnItemClickListener() {
@@ -310,12 +319,13 @@ public class MainGame extends AppCompatActivity {
                 }
                 if (special_action_heal_nick_clickable){
 
-                    if (!lobby.getMembers().get(receiver).getState().getStatus().equals("dead") && lobby.getMembers().get(receiver).getState().getInjuries()>0){
+                    if (!lobby.getMembers().get(receiver).getState().getStatus().equals("dead")){
                         if (lobby.getMembers().get(receiver).getState().getStatus().equals("unconscious")){
                             lobby.getMembers().get(receiver).getState().setStatus("alive");
                         }
-                        lobby.getMembers().get(receiver).getState().setInjuries(lobby.getMembers().get(receiver).getState().getInjuries()-1);
-
+                        if (lobby.getMembers().get(receiver).getState().getInjuries()>0) {
+                            lobby.getMembers().get(receiver).getState().setInjuries(lobby.getMembers().get(receiver).getState().getInjuries() - 1);
+                        }
                         special_action_heal_nick_clickable = false;
                             for (Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
                                 if (q.getName().equals("Аптечка")){
@@ -342,8 +352,10 @@ public class MainGame extends AppCompatActivity {
                     lobby.getMembers().get(receiver).getTreasures().getOpen().add(umb);
                         nextMove("noon");
                 }
-                if (noon_action_rob || noon_action_change_seat){
+                if ((noon_action_rob || noon_action_change_seat) && !receiver.equals(player_name)){
                     Brawl noon_action_brawl = new Brawl();
+                    attacker.clear();
+                    defender.clear();
                     if (noon_action_change_seat){
                         noon_action_brawl.setGoal("change");
                     }
@@ -355,6 +367,9 @@ public class MainGame extends AppCompatActivity {
                     defender.add(new BrawlMember(lobby.getMembers().get(receiver), false));
                     noon_action_brawl.setAttacker(attacker);
                     noon_action_brawl.setDefender(defender);
+                    if (!defender.get(0).getMember().getState().getStatus().equals("alive")){
+                        noon_action_brawl.setState("acquiesce");
+                    }
                     noon_action_rob = false;
                     noon_action_change_seat = false;
                     mDatabase.child("lobby").child(lobbyNumber).child("brawl").setValue(noon_action_brawl);
@@ -367,6 +382,8 @@ public class MainGame extends AppCompatActivity {
         manager.setAlignItems(AlignItems.FLEX_START);
         rv.setLayoutManager(manager);
         rv.setAdapter(adapter);
+        robDialog = new RobDialog(MainGame.this);
+        robDialog.setCanceledOnTouchOutside(false);
         brawlDialog = new BrawlDialog(MainGame.this);
         brawlDialog.setCanceledOnTouchOutside(false);
         treasureDialog = new TreasureDialog(MainGame.this);
@@ -383,6 +400,8 @@ public class MainGame extends AppCompatActivity {
         addWeaponDialog.setCanceledOnTouchOutside(true);
         specialCardDialog = new SpecialCardDialog(MainGame.this);
         specialCardDialog.setCanceledOnTouchOutside(false);
+        chooseNavCardDialog = new ChooseNavCardDialog(MainGame.this);
+        chooseNavCardDialog.setCanceledOnTouchOutside(false);
         attackerAdapter = new BrawlMemberAdapter(attacker);
         defenderAdapter = new BrawlMemberAdapter(defender);
         closedAdapter = new TreasureCardAdapter(closed, new OnItemClickListener() {
@@ -546,8 +565,9 @@ public class MainGame extends AppCompatActivity {
                     if (lobby.getGameState().equals("created") || lobby.getGameState().equals("morning")) {
                         gameStateTextView.setText("Утро\n" + "Ходит " + orderedByTurn.get(lobby.getTurn() - 1).getName());
                         if(lobby.getMembers().get(player_name).getTurn().equals(lobby.getTurn())){
-                            if (!(lobby.getMembers().get(player_name).getState().getStatus().equals("dead") || lobby.getMembers().get(player_name).getState().getStatus().equals("unconscious"))) {
+                            if (!(lobby.getMembers().get(player_name).getState().getStatus().equals("dead") || lobby.getMembers().get(player_name).getState().getStatus().equals("unconscious")) && lobby.getTreasuresDeck().size()!=0) {
                                 Integer numberOfChosenCards = orderedByTurn.size() - lobby.getMembers().get(player_name).getTurn() + 1;
+                                numberOfChosenCards = Math.min(numberOfChosenCards, lobby.getTreasuresDeck().size());
                                 ArrayList<Card> cardsToChoose = new ArrayList<>();
                                 for (int i = 0; i < numberOfChosenCards; i++) {
                                     cardsToChoose.add(lobby.getTreasuresDeck().get(i));
@@ -1063,6 +1083,7 @@ public class MainGame extends AppCompatActivity {
                                                 public void onClick(View view) {
                                                     for (int n=0; n<3; n++){
                                                         NavCard q = lobby.getNavCardsDeck().remove(0);
+                                                        lobby.getNavCardsDeck().add(q);
                                                         lobby.setGull(lobby.getGull()+q.getGull());
                                                     }
                                                     specialCardDialog.dismiss();
@@ -1182,24 +1203,32 @@ public class MainGame extends AppCompatActivity {
                                 attackerPower += calculatePower(q);
                             }
 
+                            if (!lobby.getMembers().get(player_name).getState().getStatus().equals("alive")){
+                                canJoin = false;
+                            }
+
                             ((TextView) brawlDialog.findViewById(R.id.attacker_power)).setText("Общая сила: "+attackerPower);
                             ((TextView) brawlDialog.findViewById(R.id.defender_power)).setText("Общая сила: "+defenderPower);
 
-                            if (lobby.getBrawl().getState().equals("brawl")){
-                                ((TextView) brawlDialog.findViewById(R.id.brawl_state)).setText("Драка");
+                            if (lobby.getBrawl().getState().equals("brawl") || lobby.getBrawl().getState().equals("acquiesce")){
+                                if (lobby.getBrawl().getState().equals("brawl")) {
+                                    ((TextView) brawlDialog.findViewById(R.id.brawl_state)).setText("Драка");
+                                }
                                 Button joinAttacker = brawlDialog.findViewById(R.id.attacker_team_join);
                                 Button joinDefender = brawlDialog.findViewById(R.id.defender_team_join);
                                 Button readyToFight = brawlDialog.findViewById(R.id.brawl_ready);
                                 Button addWeapon = brawlDialog.findViewById(R.id.brawl_weapon_add);
-                                if (canJoin) {
-                                    joinAttacker.setVisibility(View.VISIBLE);
-                                    joinDefender.setVisibility(View.VISIBLE);
-                                }else{
-                                    joinAttacker.setVisibility(View.GONE);
-                                    joinDefender.setVisibility(View.GONE);
-                                    readyToFight.setVisibility(View.VISIBLE);
-                                    addWeapon.setVisibility(View.VISIBLE);
+                                if (lobby.getBrawl().getState().equals("brawl")) {
+                                    if (canJoin) {
+                                        joinAttacker.setVisibility(View.VISIBLE);
+                                        joinDefender.setVisibility(View.VISIBLE);
+                                    } else {
+                                        joinAttacker.setVisibility(View.GONE);
+                                        joinDefender.setVisibility(View.GONE);
+                                        readyToFight.setVisibility(View.VISIBLE);
+                                        addWeapon.setVisibility(View.VISIBLE);
 
+                                    }
                                 }
                                 addWeapon.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -1220,10 +1249,13 @@ public class MainGame extends AppCompatActivity {
                                                     addWeaponDialog.findViewById(R.id.garpun).setOnClickListener(new View.OnClickListener() {
                                                         @Override
                                                         public void onClick(View view) {
+                                                            addWeaponDialog.findViewById(R.id.garpun).setVisibility(View.GONE);
                                                             for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
                                                                 if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Гарпун")){
                                                                     lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
                                                                     lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    updateBrawlMember();
+
                                                                     mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
                                                                     return;
                                                                 }
@@ -1236,10 +1268,13 @@ public class MainGame extends AppCompatActivity {
                                                     addWeaponDialog.findViewById(R.id.nozh).setOnClickListener(new View.OnClickListener() {
                                                         @Override
                                                         public void onClick(View view) {
+                                                            addWeaponDialog.findViewById(R.id.nozh).setVisibility(View.GONE);
                                                             for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
                                                                 if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Нож")){
                                                                     lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
                                                                     lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    updateBrawlMember();
+                                                                    view.setVisibility(View.GONE);
                                                                     mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
                                                                     return;
                                                                 }
@@ -1247,15 +1282,18 @@ public class MainGame extends AppCompatActivity {
                                                         }
                                                     });
                                                     break;
-                                                case "Сигнальная ракета":
+                                                case "Cигнальный пистолет":
                                                     addWeaponDialog.findViewById(R.id.special_pistolet).setVisibility(View.VISIBLE);
                                                     addWeaponDialog.findViewById(R.id.special_pistolet).setOnClickListener(new View.OnClickListener() {
                                                         @Override
                                                         public void onClick(View view) {
+                                                            addWeaponDialog.findViewById(R.id.special_pistolet).setVisibility(View.GONE);
                                                             for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
                                                                 if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Сигнальный пистолет")){
                                                                     lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
                                                                     lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    updateBrawlMember();
+                                                                    view.setVisibility(View.GONE);
                                                                     mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
                                                                     return;
                                                                 }
@@ -1268,10 +1306,13 @@ public class MainGame extends AppCompatActivity {
                                                     addWeaponDialog.findViewById(R.id.dubinka).setOnClickListener(new View.OnClickListener() {
                                                         @Override
                                                         public void onClick(View view) {
+                                                            addWeaponDialog.findViewById(R.id.dubinka).setVisibility(View.GONE);
                                                             for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
                                                                 if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Дубинка")){
                                                                     lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
                                                                     lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    updateBrawlMember();
+                                                                    view.setVisibility(View.GONE);
                                                                     mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
                                                                     return;
                                                                 }
@@ -1284,10 +1325,13 @@ public class MainGame extends AppCompatActivity {
                                                     addWeaponDialog.findViewById(R.id.veslo).setOnClickListener(new View.OnClickListener() {
                                                         @Override
                                                         public void onClick(View view) {
+                                                            addWeaponDialog.findViewById(R.id.veslo).setVisibility(View.GONE);
                                                             for (int j=0; j<lobby.getMembers().get(player_name).getTreasures().getClose().size();j++) {
                                                                 if (lobby.getMembers().get(player_name).getTreasures().getClose().get(j).getName().equals("Весло")){
                                                                     lobby.getMembers().get(player_name).getTreasures().getOpen().add(lobby.getMembers().get(player_name).getTreasures().getClose().get(j));
                                                                     lobby.getMembers().get(player_name).getTreasures().getClose().remove(j);
+                                                                    updateBrawlMember();
+                                                                    view.setVisibility(View.GONE);
                                                                     mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
                                                                     return;
                                                                 }
@@ -1295,6 +1339,8 @@ public class MainGame extends AppCompatActivity {
                                                         }
                                                     });
                                                     break;
+
+
                                             }
                                         }
 
@@ -1332,24 +1378,226 @@ public class MainGame extends AppCompatActivity {
                                     }
                                 });
 
+                                boolean allReady = true;
+                                for (BrawlMember q: lobby.getBrawl().getDefender()){
+                                    allReady = allReady && q.isReady();
+                                }
+                                for (BrawlMember q: lobby.getBrawl().getAttacker()){
+                                    allReady = allReady && q.isReady();
+                                }
 
+                            if (lobby.getBrawl().getAttacker().get(0).getMember().getName().equals(changeSpaceToSharp(player_name))){
+                                if (allReady || lobby.getBrawl().getState().equals("acquiesce")){
+                                    if (attackerPower>defenderPower || lobby.getBrawl().getState().equals("acquiesce")){
+                                        if (lobby.getBrawl().getGoal().equals("rob")){
+                                            robbedMember = lobby.getMembers().get(changeSharpToSpace(lobby.getBrawl().getDefender().get(0).getMember().getName()));
+                                            brawlDialog.dismiss();
+                                            robbery = true;
+                                            robDialog.show();
+                                            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                                            lp.copyFrom(robDialog.getWindow().getAttributes());
+                                            DisplayMetrics dm = new DisplayMetrics();
+                                            MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                                            lp.width = ((Double) (dm.widthPixels*0.9)).intValue();
+                                            lp.height = dm.heightPixels;
+                                            robDialog.getWindow().setAttributes(lp);
+                                            robDialog.setContentView(getLayoutInflater().inflate(R.layout.rob_dialog, null));
+                                            TextView robCloseCount = robDialog.findViewById(R.id.rob_close_text);
+                                            if (robbedMember.getTreasures().getClose()!=null){
+                                                robCloseCount.setText("Закрытых сокровищ: "+robbedMember.getTreasures().getClose().size());
+                                            }
+                                            else{
+                                                robCloseCount.setText("Закрытых сокровищ: 0");
+                                            }
+                                            Button robCloseButton = robDialog.findViewById(R.id.rob_close_button);
+                                            robCloseButton.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    if (robbedMember.getTreasures().getClose()!= null){
+                                                        Card q = robbedMember.getTreasures().getClose().get(random_method.nextInt(robbedMember.getTreasures().getClose().size()));
+                                                        robbedMember.getTreasures().getClose().remove(q);
+                                                        lobby.getMembers().get(player_name).getTreasures().getClose().add(q);
+                                                    }
+                                                    robDialog.dismiss();
+                                                    nextMove("noon");
+                                                }
+                                            });
+                                            RecyclerView robOpenRv = robDialog.findViewById(R.id.rob_open_rv);
+                                            ArrayList<Card> robbedOpen = robbedMember.getTreasures().getOpen();
+                                            RobOpenAdapter robOpenAdapter = new RobOpenAdapter(robbedOpen, new OnItemClickListener() {
+                                                @Override
+                                                public void onItemClick(View view) {
+                                                    String name = ((TextView)view.findViewById(R.id.treasure_text)).getText().toString();
+                                                    for (Card q:robbedMember.getTreasures().getOpen()){
+                                                        if (q.getName().equals(name)){
+                                                            lobby.getMembers().get(player_name).getTreasures().getOpen().add(q);
+                                                            robbedMember.getTreasures().getOpen().remove(q);
+                                                            break;
+                                                        }
+                                                    }
+                                                    robDialog.dismiss();
+                                                    nextMove("noon");
+                                                }
+                                            });
+                                            robOpenRv.setAdapter(robOpenAdapter);
+                                            robOpenRv.setLayoutManager(new LinearLayoutManager(MainGame.this, LinearLayoutManager.HORIZONTAL, false));
+                                        }
+                                        else{
+                                            Member attackerRob = lobby.getMembers().get(player_name);
+                                            Member defenderRob = lobby.getMembers().get(changeSharpToSpace(lobby.getBrawl().getDefender().get(0).getMember().getName()));
+                                            Integer attacker_old_seat = Integer.valueOf(attackerRob.getState().getSeat());
+                                            Integer defender_old_seat = Integer.valueOf(defenderRob.getState().getSeat());
+                                            attackerRob.getState().setSeat(defender_old_seat);
+                                            defenderRob.getState().setSeat(attacker_old_seat);
+                                        }
+                                        if (allReady) {
+                                            for (BrawlMember g : lobby.getBrawl().getDefender()) {
+                                                lobby.getMembers().get(changeSharpToSpace(g.getMember().getName())).getState().setInjuries(lobby.getMembers().get(changeSharpToSpace(g.getMember().getName())).getState().getInjuries() + 1);
+                                            }
+                                        }
+                                    }
+                                    else{
+                                        for (BrawlMember g: lobby.getBrawl().getAttacker()){
+                                            lobby.getMembers().get(changeSharpToSpace(g.getMember().getName())).getState().setInjuries(lobby.getMembers().get(changeSharpToSpace(g.getMember().getName())).getState().getInjuries()+1);
+                                        }
+                                    }
+                                    if (allReady) {
+                                        for (BrawlMember q : lobby.getBrawl().getAttacker()) {
+                                            Member toChange = lobby.getMembers().get(changeSharpToSpace(q.getMember().getName()));
+                                            if (toChange.getState().getInjuries().equals(toChange.getStats().getPower())) {
+                                                toChange.getState().setStatus("unconscious");
+                                            }
+                                            toChange.getState().setBrawled(1);
+                                            for (Card g : toChange.getTreasures().getOpen()) {
+                                                if (g.getName().equals("Cигнальный пистолет")) {
+                                                    q.getMember().getTreasures().getOpen().remove(g);
+                                                }
+                                            }
+                                        }
+                                        for (BrawlMember q : lobby.getBrawl().getDefender()) {
+                                            Member toChange = lobby.getMembers().get(changeSharpToSpace(q.getMember().getName()));
+                                            if (toChange.getState().getInjuries().equals(toChange.getStats().getPower())) {
+                                                toChange.getState().setStatus("unconscious");
+                                            }
+                                            toChange.getState().setBrawled(1);
+                                            for (Card g : toChange.getTreasures().getOpen()) {
+                                                if (g.getName().equals("Cигнальный пистолет")) {
+                                                    q.getMember().getTreasures().getOpen().remove(g);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    lobby.setBrawl(null);
+                                    if (!robbery){
+                                        nextMove("noon");
+                                    }
+
+                                }
+                            }
                             }
                         }else{
                             brawlDialog.dismiss();
+                            brawl_showed = false;
                         }
 
 
                     }
-                    if (lobby.getGameState().equals("evening")){
-                        canJoin = true;
-                        actionShown = false;
-                        brawl_showed = false;
+                    if (lobby.getGameState().equals("evening_choose_card")){
+                        if (lobby.getGameState().equals("evening_choose_card")) {
+                            brawlDialog.dismiss();
+                            robbery = false;
+                            canJoin = true;
+                            actionShown = false;
+                            brawl_showed = false;
+                            if (chooser == null) {
+                                for (int n = orderedBySeat.size() - 1; n >= 0; n--) {
+                                    if (orderedBySeat.get(n).getState().getStatus().equals("alive")) {
+                                        chooser = orderedBySeat.get(n);
+                                        break;
+                                    }
+                                }
+                            }
+                            if (listOfNavCards.size()==0) {
+                                if (lobby.getChosenNavCards() != null) {
+                                    for (NavCard q : lobby.getChosenNavCards()) {
+                                        listOfNavCards.add(new PullItem(q, false));
+                                    }
+                                } else {
+                                    listOfNavCards.add(new PullItem(lobby.getNavCardsDeck().remove(0), false));
+                                }
+                                boolean haveCompass = false;
+                                for (Card q:chooser.getTreasures().getOpen()){
+                                    if (q.getName().equals("Компас")){
+                                        haveCompass = true;
+                                        break;
+                                    }
+                                }
+                                if (haveCompass){
+                                    listOfNavCards.add(new PullItem(lobby.getNavCardsDeck().remove(0), false));
+                                }
+                            }
+                            if (chooser != null) {
+                                gameStateTextView.setText("Вечер\n" + "Ходит " + chooser.getName());
+                                if (chooser.getName().equals(changeSpaceToSharp(player_name))){
+                                    chooseNavCardDialog.show();
+                                    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                                    lp.copyFrom(chooseNavCardDialog.getWindow().getAttributes());
+                                    DisplayMetrics dm = new DisplayMetrics();
+                                    MainGame.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+                                    lp.width = ((Double) (dm.widthPixels*0.9)).intValue();
+                                    lp.height = dm.heightPixels;
+                                    chooseNavCardDialog.getWindow().setAttributes(lp);
+                                    chooseNavCardDialog.setContentView(getLayoutInflater().inflate(R.layout.choose_nav_card_dialog, null));
+                                    RecyclerView chooseNavCardRv = chooseNavCardDialog.findViewById(R.id.choose_nav_card_rv);
+                                    PullAdapter chooseNavCardAdapter = new PullAdapter(listOfNavCards, new OnItemClickListener() {
+                                        @Override
+                                        public void onItemClick(View view) {
+                                            Integer pos = Integer.valueOf(((TextView)view.findViewById(R.id.pull_position)).getText().toString());
+                                            NavCard chosen = listOfNavCards.get(pos).getNavCard();
+                                            lobby.setEveningNavCard(chosen);
+                                            for (NavCard q: lobby.getChosenNavCards()){
+                                                lobby.getNavCardsDeck().add(q);
+                                            }
+                                            listOfNavCards = new ArrayList<>();
+                                            lobby.setChosenNavCards(null);
+                                            chooseNavCardDialog.dismiss();
+                                            nextMove("evening_choose_card");
+                                        }
+                                    });
+                                    chooseNavCardRv.setAdapter(chooseNavCardAdapter);
+                                    chooseNavCardRv.setLayoutManager(new LinearLayoutManager(MainGame.this, LinearLayoutManager.HORIZONTAL, false));
+
+                                }
+                            }
+                            else{
+                                gameStateTextView.setText("Вечер\n" + "Карта выберется сама");
+                                if ((lobby.getHostName()+" "+lobby.getHostId()).equals(player_name)){
+                                    NavCard q = lobby.getNavCardsDeck().remove(0);
+                                    lobby.setEveningNavCard(q);
+                                    lobby.getNavCardsDeck().add(q);
+                                    lobby.setChosenNavCards(null);
+                                    nextMove("evening_choose_card");
+                                }
+                            }
+                        }
+                    }
+                    if (lobby.getGameState().equals("evening_gull")){
+
                     }
 
 
-
-
-
+                    if (lobby.getEveningNavCard() == null) {
+                        findViewById(R.id.nav_card_back).setBackgroundResource(R.drawable.back_nav);
+                        if (lobby.getChosenNavCards() == null) {
+                            (findViewById(R.id.navcard_count_text)).setVisibility(View.GONE);
+                        } else {
+                            (findViewById(R.id.navcard_count_text)).setVisibility(View.VISIBLE);
+                            ((TextView) findViewById(R.id.navcard_count_text)).setText("" + lobby.getChosenNavCards().size());
+                        }
+                    }else{
+                        (findViewById(R.id.navcard_count_text)).setVisibility(View.GONE);
+                        findViewById(R.id.nav_card_back).setBackgroundResource(getResId(lobby.getEveningNavCard().getResource(), R.drawable.class));
+                    }
                     if (!(yoursCloseAdapter==null)) {
                         yoursCloseAdapter.notifyDataSetChanged();
                     }
@@ -1397,9 +1645,12 @@ public class MainGame extends AppCompatActivity {
     }
 
     public void nextMove(String curr_stage){
-        if (lobby.getTurn().equals(orderedByTurn.size())){
+        if (lobby.getTurn().equals(orderedByTurn.size()) || curr_stage.equals("evening_choose_card")){
             if (curr_stage.equals("noon")){
-                lobby.setGameState("evening");
+                lobby.setGameState("evening_choose_card");
+            }
+            if (curr_stage.equals("evening_choose_card")){
+                lobby.setGameState("evening_gulls");
             }
             if(curr_stage.equals("morning")){
                 lobby.setGameState("trade");
@@ -1412,6 +1663,7 @@ public class MainGame extends AppCompatActivity {
         else {
             lobby.setTurn(lobby.getTurn() + 1);
         }
+        brawl_showed = false;
         mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
     }
 
@@ -1438,6 +1690,21 @@ public class MainGame extends AppCompatActivity {
         return toReturn;
     }
 
+
+    private void updateBrawlMember(){
+        for (BrawlMember q: lobby.getBrawl().getAttacker()){
+            if (q.getMember().getName().equals(lobby.getMembers().get(player_name).getName())){
+                q.getMember().getTreasures().setClose(lobby.getMembers().get(player_name).getTreasures().getClose());
+                q.getMember().getTreasures().setOpen(lobby.getMembers().get(player_name).getTreasures().getOpen());
+            }
+        }
+        for (BrawlMember q: lobby.getBrawl().getDefender()){
+            if (q.getMember().getName().equals(lobby.getMembers().get(player_name).getName())){
+                q.getMember().getTreasures().setClose(lobby.getMembers().get(player_name).getTreasures().getClose());
+                q.getMember().getTreasures().setOpen(lobby.getMembers().get(player_name).getTreasures().getOpen());
+            }
+        }
+    }
 
 }
 

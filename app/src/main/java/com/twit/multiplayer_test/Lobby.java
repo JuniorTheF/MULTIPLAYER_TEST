@@ -10,7 +10,7 @@ class Lobby {
 
     Lobby(){};
 
-    public Lobby(String hostName, Map<String, Member>members, String name, String hostId, String maxCount, String number, ArrayList<Card> treasuresDeck, ArrayList<NavCard> navCardsDeck, String gameState, Integer turn, Brawl brawl, HeroDialog dialog, ArrayList<NavCard> chosenNavCards, Integer gull){
+    public Lobby(String hostName, Map<String, Member>members, String name, String hostId, String maxCount, String number, ArrayList<Card> treasuresDeck, ArrayList<NavCard> navCardsDeck, String gameState, Integer turn, Brawl brawl, HeroDialog dialog, ArrayList<NavCard> chosenNavCards, Integer gull, NavCard eveningNavCard){
         this.hostName = hostName;
         this.members = members;
         this.name = name;
@@ -25,6 +25,7 @@ class Lobby {
         this.dialog = dialog;
         this.chosenNavCards = chosenNavCards;
         this.gull = gull;
+        this.eveningNavCard = eveningNavCard;
     }
 
     public Integer getGull() {
@@ -36,6 +37,16 @@ class Lobby {
     }
 
     Integer gull;
+
+    public NavCard getEveningNavCard() {
+        return eveningNavCard;
+    }
+
+    public void setEveningNavCard(NavCard eveningNavCard) {
+        this.eveningNavCard = eveningNavCard;
+    }
+
+    NavCard eveningNavCard;
 
 
     public ArrayList<NavCard> getChosenNavCards() {

@@ -108,6 +108,7 @@
         app:srcCompat="@drawable/back_supplies" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/nav_card_back"
         android:layout_width="94dp"
         android:layout_height="120dp"
         android:layout_marginBottom="4dp"
@@ -123,7 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/wiguru"
-            android:text="0"
+            android:text="5"
             android:textColor="@color/black"
             android:textSize="50sp"
             app:layout_constraintBottom_toBottomOf="parent"

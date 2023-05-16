@@ -22,7 +22,7 @@
                 android:textSize="40sp"
                 android:textColor="@color/text"
                 android:fontFamily="@font/wiguru"
-                android:text="Закртые"
+                android:text="Закрытые"
                 android:padding="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
