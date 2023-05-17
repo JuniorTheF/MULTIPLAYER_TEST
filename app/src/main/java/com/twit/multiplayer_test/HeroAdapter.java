@@ -87,6 +87,9 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
                 break;
 
         }
+        if (member.getState().getOverboard().equals(1)){
+            status+=" за бортом";
+        }
         holder.nick.setText(member.getName()+"\n"+status);
         holder.nick2.setText(member.getName());
         switch (member.getStats().getRole()){

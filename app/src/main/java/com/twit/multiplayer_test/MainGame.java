@@ -479,6 +479,9 @@ public class MainGame extends AppCompatActivity {
                     Integer gulls = lobby.getGull();
                     gulls = Math.min(gulls, 4);
                     ((ImageView)MainGame.this.findViewById(R.id.gulls_main)).setImageResource(getResId("gulls"+gulls, R.drawable.class));
+                    if (gulls.equals(4)){
+                        finishGame();
+                    }
                     orderedBySeat.clear();
                     orderedByTurn.clear();
                     closed.clear();
@@ -621,7 +624,6 @@ public class MainGame extends AppCompatActivity {
                         }
 
                     }
-
                     if (lobby.getGameState().equals("trade")){
                         gameStateTextView.setText("Торговля\n" + "Ходит " + orderedByTurn.get(lobby.getTurn() - 1).getName());
                         String name_with_sharp = String.valueOf(player_name);
@@ -1503,6 +1505,7 @@ public class MainGame extends AppCompatActivity {
 
                     }
                     if (lobby.getGameState().equals("evening_choose_card")){
+
                         if (lobby.getGameState().equals("evening_choose_card")) {
                             brawlDialog.dismiss();
                             robbery = false;
@@ -1537,7 +1540,7 @@ public class MainGame extends AppCompatActivity {
                                 }
                             }
                             if (chooser != null) {
-                                gameStateTextView.setText("Вечер\n" + "Ходит " + chooser.getName());
+                                gameStateTextView.setText("Вечер\n" + "Карту выбирает " + chooser.getName());
                                 if (chooser.getName().equals(changeSpaceToSharp(player_name))){
                                     chooseNavCardDialog.show();
                                     WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -1581,9 +1584,90 @@ public class MainGame extends AppCompatActivity {
                             }
                         }
                     }
-                    if (lobby.getGameState().equals("evening_gull")){
-
+                    if (lobby.getGameState().equals("evening_gulls")){
+                        if ((lobby.getHostName()+" "+lobby.getHostId()).equals(player_name)){
+                            lobby.setGull(lobby.getGull()+lobby.getEveningNavCard().getGull());
+                            nextMove("evening_gulls");
+                        }
                     }
+                    if (lobby.getGameState().equals("evening_overboard")){
+                        gameStateTextView.setText("Вечер\nРешается кто попадет за борт");
+                        if ((lobby.getHostName()+" "+lobby.getHostId()).equals(player_name)){
+                            ArrayList<String> overBoarders = new ArrayList<>();
+                            if (lobby.getEveningNavCard().getBort() != null) {
+                                for (String q : lobby.getEveningNavCard().getBort()) {
+                                    overBoarders.add(q);
+                                }
+                                for (Member q :lobby.getMembers().values()){
+                                    if (overBoarders.contains(q.getStats().getRole())){
+                                        q.getState().setOverboard(1);
+                                    }
+                                }
+                            }
+                            nextMove("evening_overboard");
+                        }
+                    }
+                    if (lobby.getGameState().equals("evening_shark_bait")) {
+                        gameStateTextView.setText("Вечер\nРешается использование приманки для акул" );
+                        if (orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToSharp(player_name))) {
+                            if (lobby.getEveningNavCard().getBort() != null) {
+                                boolean haveBait = false;
+                                for (Card q : lobby.getMembers().get(player_name).getTreasures().getClose()) {
+                                    if (q.getName().equals("Приманка для акул")) {
+                                        haveBait = true;
+                                        break;
+                                    }
+                                }
+                                if (haveBait) {
+                                    AlertDialog.Builder adb = new AlertDialog.Builder(MainGame.this);
+                                    adb.setTitle("Использовать приманку для акул?")
+                                            .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    lobby.setSharkBait(true);
+                                                    for (Card q : lobby.getMembers().get(player_name).getTreasures().getClose()) {
+                                                        if (q.getName().equals("Приманка для акул")) {
+                                                            lobby.getMembers().get(player_name).getTreasures().getClose().remove(q);
+                                                            break;
+                                                        }
+                                                    }
+                                                    nextMove("evening_shark_bait");
+                                                }
+                                            })
+                                            .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    nextMove("evening_shark_bait");
+                                                }
+                                            });
+                                    AlertDialog dialog = adb.show();
+                                    dialog.setCanceledOnTouchOutside(false);
+                                } else {
+                                    if (lobby.getMembers().get(player_name).getState().getOverboard().equals(1)) {
+                                        boolean haveOpenBait = false;
+                                        for (Card q : lobby.getMembers().get(player_name).getTreasures().getOpen()) {
+                                            if (q.getName().equals("Приманка для акул")) {
+                                                haveOpenBait = true;
+                                                lobby.getMembers().get(player_name).getTreasures().getOpen().remove(q);
+                                                break;
+                                            }
+                                        }
+                                        if (haveOpenBait) {
+                                            lobby.setSharkBait(true);
+                                        }
+                                    }
+                                    nextMove("evening_shark_bait");
+                                }
+                            } else {
+                                nextMove("evening_shark_bait");
+                            }
+                        }
+                    }
+                    if (lobby.getGameState().equals("evening_zhilet")){
+                        gameStateTextView.setText("Вечер\nРешается использование жилетов");
+                    }
+
+
 
 
                     if (lobby.getEveningNavCard() == null) {
@@ -1597,6 +1681,12 @@ public class MainGame extends AppCompatActivity {
                     }else{
                         (findViewById(R.id.navcard_count_text)).setVisibility(View.GONE);
                         findViewById(R.id.nav_card_back).setBackgroundResource(getResId(lobby.getEveningNavCard().getResource(), R.drawable.class));
+                        if (lobby.isSharkBait()){
+                            findViewById(R.id.akuli).setVisibility(View.VISIBLE);
+                        }
+                        else{
+                            findViewById(R.id.akuli).setVisibility(View.GONE);
+                        }
                     }
                     if (!(yoursCloseAdapter==null)) {
                         yoursCloseAdapter.notifyDataSetChanged();
@@ -1627,6 +1717,11 @@ public class MainGame extends AppCompatActivity {
 
     }
 
+    private void finishGame(){
+
+    }
+
+
     public static int getResId(String resName, Class<?> c) {
         try {
             Field idField = c.getDeclaredField(resName);
@@ -1645,12 +1740,21 @@ public class MainGame extends AppCompatActivity {
     }
 
     public void nextMove(String curr_stage){
-        if (lobby.getTurn().equals(orderedByTurn.size()) || curr_stage.equals("evening_choose_card")){
+        if (lobby.getTurn().equals(orderedByTurn.size()) || curr_stage.equals("evening_choose_card") || curr_stage.equals("evening_gulls") || curr_stage.equals("evening_overboard")){
             if (curr_stage.equals("noon")){
                 lobby.setGameState("evening_choose_card");
             }
             if (curr_stage.equals("evening_choose_card")){
                 lobby.setGameState("evening_gulls");
+            }
+            if (curr_stage.equals("evening_gulls")){
+                lobby.setGameState("evening_overboard");
+            }
+            if (curr_stage.equals("evening_overboard")){
+                lobby.setGameState("evening_shark_bait");
+            }
+            if (curr_stage.equals("evening_shark_bait")){
+                lobby.setGameState("evening_zhilet");
             }
             if(curr_stage.equals("morning")){
                 lobby.setGameState("trade");
