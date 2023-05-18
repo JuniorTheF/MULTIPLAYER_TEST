@@ -7,6 +7,8 @@ import java.util.TreeMap;
 
 public class Member {
 
+
+
     Member(){
         this.turn = 0;
         this.state = new State();
@@ -69,6 +71,17 @@ public class Member {
 
     public void setTreasures(Treasures treasures) {
         this.treasures = treasures;
+    }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "name='" + name + '\'' +
+                ", stats=" + stats +
+                ", turn=" + turn +
+                ", state=" + state +
+                ", treasures=" + treasures +
+                '}';
     }
 }
 
@@ -195,6 +208,17 @@ class State{
 }
 
 class Stats{
+
+    @Override
+    public String toString() {
+        return "Stats{" +
+                "role='" + role + '\'' +
+                ", power=" + power +
+                ", survival_bonus=" + survival_bonus +
+                ", enemy='" + enemy + '\'' +
+                ", friend='" + friend + '\'' +
+                '}';
+    }
 
     public Stats(){
         this.role = "";

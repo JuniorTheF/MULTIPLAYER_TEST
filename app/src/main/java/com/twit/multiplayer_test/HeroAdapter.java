@@ -1,6 +1,7 @@
 package com.twit.multiplayer_test;
 
 import android.content.Context;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,6 +74,25 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
             holder.trauma.setVisibility(View.VISIBLE);
             holder.trauma.setText(""+member.getState().getInjuries());
         }
+        if (member.getState().getThirst().equals(0)){
+            holder.thirst.setVisibility(View.GONE);
+        }
+        else{
+            holder.thirst.setVisibility(View.VISIBLE);
+            holder.thirst.setText(""+member.getState().getThirst());
+        }
+        boolean haveZhilet = false;
+        for (Card q: member.getTreasures().getOpen()){
+            if (q.getName().equals("Спасательный жилет")){
+                haveZhilet = true;
+            }
+        }
+        if (haveZhilet){
+            holder.zhilet.setVisibility(View.VISIBLE);
+        }
+        else{
+            holder.zhilet.setVisibility(View.GONE);
+        }
         holder.power.setText(""+member.getStats().getPower());
         String status = "";
         switch (member.getState().getStatus()){
@@ -128,6 +148,8 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
         ImageView work;
         TextView nick;
         TextView nick2;
+        ImageView zhilet;
+        TextView thirst;
         ConstraintLayout cl;
 
         public ViewHolder(View view){
@@ -139,6 +161,8 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
             fight = view.findViewById(R.id.fight_tiredness);
             work = view.findViewById(R.id.work_tiredness);
             cl = view.findViewById(R.id.constraint_hero);
+            thirst = view.findViewById(R.id.thirst);
+            zhilet = view.findViewById(R.id.zhilet);
         }
 
 
