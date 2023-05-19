@@ -1022,6 +1022,7 @@ public class MainGame extends AppCompatActivity {
                     if (lobby.getGameState().equals("noon")){
                         gameStateTextView.setText("День\n" + "Ходит " + orderedByTurn.get(lobby.getTurn() - 1).getName());
                         shown = false;
+                        trade_nick_clickable = false;
                         yoursClose = new ArrayList<>();
                         yoursOpen = new ArrayList<>();
                         theirsOpen = new ArrayList<>();
@@ -1586,6 +1587,9 @@ public class MainGame extends AppCompatActivity {
                                     }
 
                                 }
+                            }
+                            if (allReady){
+                                brawlDialog.dismiss();
                             }
                             }
                         }else{
