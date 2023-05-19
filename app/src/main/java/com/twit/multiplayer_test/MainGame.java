@@ -1905,8 +1905,8 @@ public class MainGame extends AppCompatActivity {
                                     q.getState().setOverboard(0);
                                 }
                             }
+                            NavCard g = lobby.getEveningNavCard();
                             for (Member q: lobby.getMembers().values()) {
-                                NavCard g = lobby.getEveningNavCard();
                                 boolean haveZontik = false;
                                 for (Card m : q.getTreasures().getOpen()) {
                                     if (m.getName().equals("Зонтик")) {
@@ -1925,8 +1925,10 @@ public class MainGame extends AppCompatActivity {
                                             q.getState().setThirst(q.getState().getThirst() + 1);
                                         }
                                     }
-                                    if (g.getThirst().contains(q.getStats().getRole())) {
-                                        q.getState().setThirst(q.getState().getThirst() + 1);
+                                    if (g.getThirst()!=null) {
+                                        if (g.getThirst().contains(q.getStats().getRole())) {
+                                            q.getState().setThirst(q.getState().getThirst() + 1);
+                                        }
                                     }
                                 }
                             }
