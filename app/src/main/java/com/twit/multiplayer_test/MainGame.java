@@ -34,7 +34,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
@@ -641,7 +640,7 @@ public class MainGame extends AppCompatActivity {
                                     }
                                 }
                                 for (int n = 1; n<lobby.getMembers().get(player_name).getTurn();n++){
-                                    if (orderedByTurn.get(n).getState().getStatus().equals("alive")){
+                                    if (orderedByTurn.get(n-1).getState().getStatus().equals("alive")){
                                         numberOfChosenCards-=1;
                                     }
                                 }
@@ -1893,6 +1892,7 @@ public class MainGame extends AppCompatActivity {
                                     if (!q.getStats().getRole().equals("Черпак")){
                                         q.getState().setInjuries(q.getState().getInjuries()+1);
                                     }
+                                    q.getTreasures().setOpen(null);
                                 }
                             }
                             for (Member q: lobby.getMembers().values()){
@@ -2064,7 +2064,7 @@ public class MainGame extends AppCompatActivity {
         fianlShowed = true;
         Gson gson = new Gson();
         String lobbyJson = gson.toJson(lobby);
-        Intent toFinal = new Intent(MainGame.this, FianlOfGame.class);
+        Intent toFinal = new Intent(MainGame.this, FinalOfGame.class);
         toFinal.putExtra("lobby", lobbyJson);
         finish();
         startActivity(toFinal);

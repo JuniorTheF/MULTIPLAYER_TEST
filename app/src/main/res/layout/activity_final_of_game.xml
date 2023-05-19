@@ -7,7 +7,7 @@
     android:background="@drawable/bg5"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FianlOfGame">
+    tools:context=".FinalOfGame">
 
     <TextView
         android:fontFamily="@font/wiguru"
@@ -15,9 +15,14 @@
         android:padding="8dp"
         android:textColor="@color/text"
         android:textSize="45sp"
-        android:text="Игра Оконечена"
+        android:text="Игра Окончена"
         android:background="@drawable/text_background_less_radius"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/final_items_rv"/>
 
 </LinearLayout>
