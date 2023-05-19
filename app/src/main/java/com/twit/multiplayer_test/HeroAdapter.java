@@ -82,9 +82,13 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
             holder.thirst.setText(""+member.getState().getThirst());
         }
         boolean haveZhilet = false;
+        boolean haveZont = false;
         for (Card q: member.getTreasures().getOpen()){
             if (q.getName().equals("Спасательный жилет")){
                 haveZhilet = true;
+            }
+            if (q.getName().equals("Зонтик")){
+                haveZont = true;
             }
         }
         if (haveZhilet){
@@ -92,6 +96,12 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
         }
         else{
             holder.zhilet.setVisibility(View.GONE);
+        }
+        if (haveZont){
+            holder.zont.setVisibility(View.VISIBLE);
+        }
+        else{
+            holder.zont.setVisibility(View.GONE);
         }
         holder.power.setText(""+member.getStats().getPower());
         String status = "";
@@ -149,6 +159,7 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
         TextView nick;
         TextView nick2;
         ImageView zhilet;
+        ImageView zont;
         TextView thirst;
         ConstraintLayout cl;
 
@@ -163,6 +174,7 @@ public class HeroAdapter extends RecyclerView.Adapter<HeroAdapter.ViewHolder> {
             cl = view.findViewById(R.id.constraint_hero);
             thirst = view.findViewById(R.id.thirst);
             zhilet = view.findViewById(R.id.zhilet);
+            zont = view.findViewById(R.id.zont);
         }
 
 

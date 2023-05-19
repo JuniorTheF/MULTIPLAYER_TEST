@@ -342,6 +342,7 @@ public class MainGame extends AppCompatActivity {
                                 };
                         }
                         nextMove("noon");
+                            return;
 
                     }
                 }
@@ -359,6 +360,7 @@ public class MainGame extends AppCompatActivity {
                     }
                     lobby.getMembers().get(receiver).getTreasures().getOpen().add(umb);
                         nextMove("noon");
+                        return;
                 }
                 if ((noon_action_rob || noon_action_change_seat) && !receiver.equals(player_name)){
                     Brawl noon_action_brawl = new Brawl();
@@ -404,6 +406,7 @@ public class MainGame extends AppCompatActivity {
                     endTurn.setEnabled(false);
                     endTurn.setOnClickListener(null);
                     nextMove("evening_zhilet");
+                    return;
 
                 }
                 if (thirst_clickable){
@@ -533,6 +536,7 @@ public class MainGame extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 lobby = snapshot.getValue(Lobby.class);
                 if (!(null == lobby)) {
+                    System.out.println(lobby.getGameState());
                     Integer gulls = lobby.getGull();
                     gulls = Math.min(gulls, 4);
                     ((ImageView)MainGame.this.findViewById(R.id.gulls_main)).setImageResource(getResId("gulls"+gulls, R.drawable.class));
@@ -691,6 +695,7 @@ public class MainGame extends AppCompatActivity {
                             }
                             else{
                                 nextMove("morning");
+                                return;
                             }
                         }
 
@@ -1010,6 +1015,7 @@ public class MainGame extends AppCompatActivity {
                             System.out.println(orderedByTurn.get(lobby.getTurn()-1).getName());
                             if (orderedByTurn.get(lobby.getTurn()-1).getName().equals(name_with_sharp)) {
                                 nextMove("trade");
+                                return;
                             }
                         }
                     }
@@ -1047,6 +1053,7 @@ public class MainGame extends AppCompatActivity {
                                 public void onClick(View view) {
                                     actionDialog.dismiss();
                                     nextMove("noon");
+                                    return;
                                 }
                             });
                             TextView pull = actionDialog.findViewById(R.id.action_gresti);
@@ -1101,6 +1108,7 @@ public class MainGame extends AppCompatActivity {
                                             pullDialog.dismiss();
                                             lobby.getMembers().get(player_name).getState().setPulled(1);
                                             nextMove("noon");
+                                            return;
                                         }
                                     });
 
@@ -1170,6 +1178,7 @@ public class MainGame extends AppCompatActivity {
                                                             };
                                                     }
                                                     nextMove("noon");
+                                                        return;
                                                 }
                                             });
                                         }
@@ -1206,9 +1215,11 @@ public class MainGame extends AppCompatActivity {
                         }else{
                             if (!orderedByTurn.get(lobby.getTurn()-1).getState().getStatus().equals("alive") && orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToSharp(player_name))){
                                 nextMove("noon");
+                                return;
                             }
                         }
                         if(lobby.getBrawl()!=null){
+                            canJoin = true;
                             if (brawl_showed!=true){
                                 brawl_showed = true;
                                 brawlDialog.show();
@@ -1489,13 +1500,17 @@ public class MainGame extends AppCompatActivity {
                                             robCloseButton.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View view) {
-                                                    if (robbedMember.getTreasures().getClose()!= null){
-                                                        Card q = robbedMember.getTreasures().getClose().get(random_method.nextInt(robbedMember.getTreasures().getClose().size()));
-                                                        robbedMember.getTreasures().getClose().remove(q);
-                                                        lobby.getMembers().get(player_name).getTreasures().getClose().add(q);
+                                                    System.out.println(robbedMember.getTreasures().getClose());
+                                                    if (robbedMember.getTreasures().getClose() != null){
+                                                        if (robbedMember.getTreasures().getClose().size()>0) {
+                                                            Card q = robbedMember.getTreasures().getClose().get(random_method.nextInt(robbedMember.getTreasures().getClose().size()));
+                                                            robbedMember.getTreasures().getClose().remove(q);
+                                                            lobby.getMembers().get(player_name).getTreasures().getClose().add(q);
+                                                        }
                                                     }
                                                     robDialog.dismiss();
                                                     nextMove("noon");
+                                                    return;
                                                 }
                                             });
                                             RecyclerView robOpenRv = robDialog.findViewById(R.id.rob_open_rv);
@@ -1513,6 +1528,7 @@ public class MainGame extends AppCompatActivity {
                                                     }
                                                     robDialog.dismiss();
                                                     nextMove("noon");
+                                                    return;
                                                 }
                                             });
                                             robOpenRv.setAdapter(robOpenAdapter);
@@ -1566,6 +1582,7 @@ public class MainGame extends AppCompatActivity {
                                     lobby.setBrawl(null);
                                     if (!robbery){
                                         nextMove("noon");
+                                        return;
                                     }
 
                                 }
@@ -1639,6 +1656,7 @@ public class MainGame extends AppCompatActivity {
                                             lobby.setChosenNavCards(null);
                                             chooseNavCardDialog.dismiss();
                                             nextMove("evening_choose_card");
+                                            return;
                                         }
                                     });
                                     chooseNavCardRv.setAdapter(chooseNavCardAdapter);
@@ -1656,6 +1674,7 @@ public class MainGame extends AppCompatActivity {
                                     lobby.getNavCardsDeck().add(q);
                                     lobby.setChosenNavCards(null);
                                     nextMove("evening_choose_card");
+                                    return;
                                 }
                             }
                         }
@@ -1667,6 +1686,7 @@ public class MainGame extends AppCompatActivity {
                                 lobby.setGull(0);
                             }
                             nextMove("evening_gulls");
+                            return;
                         }
                     }
                     if (lobby.getGameState().equals("evening_overboard")){
@@ -1684,18 +1704,21 @@ public class MainGame extends AppCompatActivity {
                                 }
                             }
                             nextMove("evening_overboard");
+                            return;
                         }
                     }
-                    if (lobby.getGameState().equals("evening_shark_bait")) {
+                    if (lobby.getGameState().equals("evening_bait")) {
                         gameStateTextView.setText("Вечер\nРешается использование приманки для акул" );
                         if (orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToSharp(player_name))) {
                             if (lobby.getMembers().get(player_name).getState().getStatus().equals("alive")) {
                                 if (lobby.getEveningNavCard().getBort() != null) {
                                     boolean haveBait = false;
-                                    for (Card q : lobby.getMembers().get(player_name).getTreasures().getClose()) {
-                                        if (q.getName().equals("Приманка для акул")) {
-                                            haveBait = true;
-                                            break;
+                                    if (lobby.getMembers().get(player_name).getTreasures().getClose()!=null) {
+                                        for (Card q : lobby.getMembers().get(player_name).getTreasures().getClose()) {
+                                            if (q.getName().equals("Приманка для акул")) {
+                                                haveBait = true;
+                                                break;
+                                            }
                                         }
                                     }
                                     if (haveBait) {
@@ -1711,24 +1734,28 @@ public class MainGame extends AppCompatActivity {
                                                                 break;
                                                             }
                                                         }
-                                                        nextMove("evening_shark_bait");
+                                                        nextMove("evening_bait");
+                                                        return;
                                                     }
                                                 })
                                                 .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                                        nextMove("evening_shark_bait");
+                                                        nextMove("evening_bait");
+                                                        return;
                                                     }
                                                 });
                                         AlertDialog dialog = adb.show();
                                         dialog.setCanceledOnTouchOutside(false);
                                     } else {
                                         boolean haveOpenBait = false;
-                                        for (Card q : lobby.getMembers().get(player_name).getTreasures().getOpen()) {
-                                            if (q.getName().equals("Приманка для акул")) {
-                                                haveOpenBait = true;
-                                                lobby.getMembers().get(player_name).getTreasures().getOpen().remove(q);
-                                                break;
+                                        if (lobby.getMembers().get(player_name).getTreasures().getOpen()!=null) {
+                                            for (Card q : lobby.getMembers().get(player_name).getTreasures().getOpen()) {
+                                                if (q.getName().equals("Приманка для акул")) {
+                                                    haveOpenBait = true;
+                                                    lobby.getMembers().get(player_name).getTreasures().getOpen().remove(q);
+                                                    break;
+                                                }
                                             }
                                         }
                                         if (lobby.getMembers().get(player_name).getState().getOverboard().equals(1)) {
@@ -1749,26 +1776,31 @@ public class MainGame extends AppCompatActivity {
                                                                         break;
                                                                     }
                                                                 }
-                                                                nextMove("evening_shark_bait");
+                                                                nextMove("evening_bait");
+                                                                return;
                                                             }
                                                         })
                                                         .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
                                                             @Override
                                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                                nextMove("evening_shark_bait");
+                                                                nextMove("evening_bait");
+                                                                return;
                                                             }
                                                         });
                                                 AlertDialog dialog = adb.show();
                                                 dialog.setCanceledOnTouchOutside(false);
                                             }
                                         }
-                                        nextMove("evening_shark_bait");
+                                        nextMove("evening_bait");
+                                        return;
                                     }
                                 } else {
-                                    nextMove("evening_shark_bait");
+                                    nextMove("evening_bait");
+                                    return;
                                 }
                             }else {
-                                nextMove("evening_shark_bait");
+                                nextMove("evening_bait");
+                                return;
                             }
                         }
                     }
@@ -1783,6 +1815,7 @@ public class MainGame extends AppCompatActivity {
                                 }
                             }
                             nextMove("evening_shark_damage");
+                            return;
                         }
                     }
                     if (lobby.getGameState().equals("evening_zhilet")) {
@@ -1794,18 +1827,24 @@ public class MainGame extends AppCompatActivity {
                                     Member q = lobby.getMembers().get(player_name);
                                     boolean haveOpenZhilet = false;
                                     boolean haveCloseZhilet = false;
-                                    for (Card g : q.getTreasures().getOpen()) {
-                                        if (g.getName().equals("Спасательный жилет")) {
-                                            haveOpenZhilet = true;
+                                    if (q.getTreasures().getOpen()!=null){
+                                        for (Card g : q.getTreasures().getOpen()) {
+                                            if (g.getName().equals("Спасательный жилет")) {
+                                                haveOpenZhilet = true;
+                                            }
                                         }
                                     }
-                                    for (Card g : q.getTreasures().getClose()) {
-                                        if (g.getName().equals("Спасательный жилет")) {
-                                            haveCloseZhilet = true;
+                                    if (q.getTreasures().getClose()!=null) {
+                                        for (Card g : q.getTreasures().getClose()) {
+                                            if (g.getName().equals("Спасательный жилет")) {
+                                                haveCloseZhilet = true;
+                                            }
                                         }
                                     }
+                                    System.out.println(!(haveCloseZhilet || haveOpenZhilet));
                                     if (!(haveCloseZhilet || haveOpenZhilet)) {
                                         nextMove("evening_zhilet");
+                                        return;
                                     } else {
                                         Toast.makeText(MainGame.this, "Выберите кому хотите предоставить жилет", Toast.LENGTH_LONG).show();
                                         give_zhilet_clickable = true;
@@ -1818,16 +1857,18 @@ public class MainGame extends AppCompatActivity {
                                                 nextMove("evening_zhilet");
                                                 endTurn.setOnClickListener(null);
                                                 endTurn.setEnabled(false);
+                                                return;
                                             }
                                         });
                                     }
                                 }
                             }else{
                                 nextMove("evening_zhilet");
+                                return;
                             }
                         }
                     }
-                    if (lobby.getGameState().equals("evening_overboard_damage")){
+                    if (lobby.getGameState().equals("evening_damage_overboard")){
                         gameStateTextView.setText("Вечер\nПросчитывается урон от падения за борт");
                         if ((lobby.getHostName() + " " + lobby.getHostId()).equals(player_name)){
                             for (Member q: lobby.getMembers().values()){
@@ -1889,28 +1930,51 @@ public class MainGame extends AppCompatActivity {
                                     }
                                 }
                             }
-                            nextMove("evening_overboard_damage");
+                            nextMove("evening_damage_overboard");
+                            return;
                         }
                     }
                     if (lobby.getGameState().equals("evening_thirst")){
                         gameStateTextView.setText("Вечер\n" + "Воду раздает " + orderedByTurn.get(lobby.getTurn() - 1).getName());
                         if (orderedByTurn.get(lobby.getTurn()-1).getName().equals(changeSpaceToSharp(player_name))){
                             if (lobby.getMembers().get(player_name).getState().getStatus().equals("alive")){
-                                Toast.makeText(MainGame.this, "Выберите кому дать воду", Toast.LENGTH_SHORT).show();
-                                thirst_clickable = true;
-                                Button endTurn = findViewById(R.id.end_turn_button);
-                                endTurn.setEnabled(true);
-                                endTurn.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        thirst_clickable = false;
-                                        endTurn.setOnClickListener(null);
-                                        endTurn.setEnabled(false);
-                                        nextMove("evening_thirst");
+                                boolean haveWater = false;
+                                if (lobby.getMembers().get(player_name).getTreasures().getOpen()!=null){
+                                    for (Card q: lobby.getMembers().get(player_name).getTreasures().getOpen()){
+                                        if (q.getName().equals("Вода")){
+                                            haveWater = true;
+                                        }
                                     }
-                                });
+                                }
+                                if (lobby.getMembers().get(player_name).getTreasures().getClose()!=null){
+                                    for (Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
+                                        if (q.getName().equals("Вода")){
+                                            haveWater = true;
+                                        }
+                                    }
+                                }
+                                if (haveWater) {
+                                    Toast.makeText(MainGame.this, "Выберите кому дать воду", Toast.LENGTH_SHORT).show();
+                                    thirst_clickable = true;
+                                    Button endTurn = findViewById(R.id.end_turn_button);
+                                    endTurn.setEnabled(true);
+                                    endTurn.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            thirst_clickable = false;
+                                            endTurn.setOnClickListener(null);
+                                            endTurn.setEnabled(false);
+                                            nextMove("evening_thirst");
+                                            return;
+                                        }
+                                    });
+                                }else {
+                                    nextMove("evening_thirst");
+                                    return;
+                                }
                             }else{
                                 nextMove("evening_thirst");
+                                return;
                             }
                         }
                     }
@@ -1933,13 +1997,19 @@ public class MainGame extends AppCompatActivity {
                             lobby.setEveningNavCard(null);
                             lobby.setSharkBait(false);
                             nextMove("evening_final");
+                            return;
                         }
                     }
 
 
 
 
-
+                    if (lobby.isSharkBait()){
+                        findViewById(R.id.akuli).setVisibility(View.VISIBLE);
+                    }
+                    else{
+                        findViewById(R.id.akuli).setVisibility(View.GONE);
+                    }
                     if (lobby.getEveningNavCard() == null) {
                         findViewById(R.id.nav_card_back).setBackgroundResource(R.drawable.back_nav);
                         if (lobby.getChosenNavCards() == null) {
@@ -1951,12 +2021,7 @@ public class MainGame extends AppCompatActivity {
                     }else{
                         (findViewById(R.id.navcard_count_text)).setVisibility(View.GONE);
                         findViewById(R.id.nav_card_back).setBackgroundResource(getResId(lobby.getEveningNavCard().getResource(), R.drawable.class));
-                        if (lobby.isSharkBait()){
-                            findViewById(R.id.akuli).setVisibility(View.VISIBLE);
-                        }
-                        else{
-                            findViewById(R.id.akuli).setVisibility(View.GONE);
-                        }
+
                     }
                     if (!(yoursCloseAdapter==null)) {
                         yoursCloseAdapter.notifyDataSetChanged();
@@ -2018,15 +2083,15 @@ public class MainGame extends AppCompatActivity {
     }
 
     public void nextMove(String curr_stage){
-        if (lobby.getTurn().equals(orderedByTurn.size()) || curr_stage.equals("evening_choose_card") || curr_stage.equals("evening_gulls") || curr_stage.equals("evening_overboard") || curr_stage.equals("evening_shark_damage") || curr_stage.equals("evening_overboard_damage") || curr_stage.equals("evening_final")){
+        if (lobby.getTurn().equals(orderedByTurn.size()) || curr_stage.equals("evening_choose_card") || curr_stage.equals("evening_gulls") || curr_stage.equals("evening_overboard") || curr_stage.equals("evening_shark_damage") || curr_stage.equals("evening_damage_overboard") || curr_stage.equals("evening_final")){
+            if(curr_stage.equals("morning")){
+                lobby.setGameState("trade");
+            }
+            if(curr_stage.equals("trade")){
+                lobby.setGameState("noon");
+            }
             if (curr_stage.equals("noon")){
                 lobby.setGameState("evening_choose_card");
-            }
-            if (curr_stage.equals("evening_thirst")){
-                lobby.setGameState("evening_final");
-            }
-            if (curr_stage.equals("evening_final")){
-                lobby.setGameState("morning");
             }
             if (curr_stage.equals("evening_choose_card")){
                 lobby.setGameState("evening_gulls");
@@ -2035,25 +2100,25 @@ public class MainGame extends AppCompatActivity {
                 lobby.setGameState("evening_overboard");
             }
             if (curr_stage.equals("evening_overboard")){
-                lobby.setGameState("evening_shark_bait");
+                lobby.setGameState("evening_bait");
             }
-            if (curr_stage.equals("evening_shark_bait")){
+            if (curr_stage.equals("evening_bait")){
                 lobby.setGameState("evening_shark_damage");
             }
             if (curr_stage.equals("evening_shark_damage")){
                 lobby.setGameState("evening_zhilet");
             }
             if (curr_stage.equals("evening_zhilet")){
-                lobby.setGameState("evening_overboard_damage");
+                lobby.setGameState("evening_damage_overboard");
             }
-            if (curr_stage.equals("evening_overboard_damage")){
+            if (curr_stage.equals("evening_damage_overboard")){
                 lobby.setGameState("evening_thirst");
             }
-            if(curr_stage.equals("morning")){
-                lobby.setGameState("trade");
+            if (curr_stage.equals("evening_thirst")){
+                lobby.setGameState("evening_final");
             }
-            if(curr_stage.equals("trade")){
-                lobby.setGameState("noon");
+            if (curr_stage.equals("evening_final")){
+                lobby.setGameState("morning");
             }
             lobby.setTurn(1);
         }
