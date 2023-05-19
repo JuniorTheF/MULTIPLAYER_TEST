@@ -21,7 +21,7 @@ public class FinalAdapter extends RecyclerView.Adapter<FinalAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Member toFinal = members.get(position);
-        holder.name.setText(toFinal.getName());
+        holder.name.setText(toFinal.getName()+"("+toFinal.getStats().getRole()+")");
         String finalScore = "";
         Integer finalScoreInteger = 0;
         if (!toFinal.getState().getStatus().equals("dead")){
@@ -166,7 +166,7 @@ public class FinalAdapter extends RecyclerView.Adapter<FinalAdapter.ViewHolder> 
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context ctx = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(ctx);
-        View finalView = inflater.inflate(R.layout.final_item, null);
+        View finalView = inflater.inflate(R.layout.final_item, parent, false);
         FinalAdapter.ViewHolder vh = new FinalAdapter.ViewHolder(finalView);
         return vh;
     }

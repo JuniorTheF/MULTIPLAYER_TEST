@@ -97,6 +97,7 @@ public class MainGame extends AppCompatActivity {
     boolean shown = false;
     boolean zhiletCalculated = false;
     boolean give_zhilet_clickable = false;
+    String receiver;
     Member chooser = null;
     boolean actionShown = false;
     Random random_method = new Random();
@@ -199,7 +200,7 @@ public class MainGame extends AppCompatActivity {
         }, new OnItemClickListener() {
             @Override
             public void onItemClick(View view) {
-                String receiver = ((TextView)view.findViewById(R.id.hero_nick)).getText().toString().split(System.lineSeparator())[0];
+                receiver = ((TextView)view.findViewById(R.id.hero_nick)).getText().toString().split(System.lineSeparator())[0];
                 receiver = receiver.substring(0, receiver.lastIndexOf("#"))+" "+receiver.substring(receiver.lastIndexOf("#")+1);
                 if (trade_nick_clickable && lobby.getMembers().get(receiver).getState().getStatus().equals("alive") && !receiver.equals(player_name)){
                     yoursOpenAdapter = new TradeItemAdapter(yoursOpen, new OnItemClickListener() {
@@ -258,8 +259,6 @@ public class MainGame extends AppCompatActivity {
 
                         }
                     });
-                    System.out.println(yoursOpen);
-                    System.out.println(theirsOpen);
                     HeroDialog hd = new HeroDialog();
                     hd.setSender(lobby.getMembers().get(player_name));
                     hd.setReciever(lobby.getMembers().get(receiver));
@@ -361,44 +360,102 @@ public class MainGame extends AppCompatActivity {
                         nextMove("noon");
                         return;
                 }
-                if ((noon_action_rob || noon_action_change_seat) && !receiver.equals(player_name)){
-                    Brawl noon_action_brawl = new Brawl();
-                    attacker.clear();
-                    defender.clear();
-                    if (noon_action_change_seat){
-                        noon_action_brawl.setGoal("change");
+                if ((noon_action_rob || noon_action_change_seat) && !receiver.equals(player_name)) {
+                    if (noon_action_rob && lobby.getMembers().get(player_name).getStats().getRole().equals("Шкет")) {
+                        AlertDialog.Builder adb = new AlertDialog.Builder(MainGame.this);
+                        adb.setTitle("Использовать способность?").setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Member shketSpellMember = lobby.getMembers().get(receiver);
+                                if (shketSpellMember.getTreasures().getClose() != null){
+                                    if (shketSpellMember.getTreasures().getClose().size()>0) {
+                                        Card q = shketSpellMember.getTreasures().getClose().get(random_method.nextInt(shketSpellMember.getTreasures().getClose().size()));
+                                        shketSpellMember.getTreasures().getClose().remove(q);
+                                        lobby.getMembers().get(player_name).getTreasures().getClose().add(q);
+                                    }
+                                }
+                                nextMove("noon");
+                            }
+                        }).setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Brawl noon_action_brawl = new Brawl();
+                                attacker.clear();
+                                defender.clear();
+                                if (noon_action_change_seat) {
+                                    noon_action_brawl.setGoal("change");
+                                }
+                                if (noon_action_rob) {
+                                    noon_action_brawl.setGoal("rob");
+                                }
+                                noon_action_brawl.setState("waitForReaction");
+                                attacker.add(new BrawlMember(lobby.getMembers().get(player_name), false));
+                                defender.add(new BrawlMember(lobby.getMembers().get(receiver), false));
+                                noon_action_brawl.setAttacker(attacker);
+                                noon_action_brawl.setDefender(defender);
+                                if (!defender.get(0).getMember().getState().getStatus().equals("alive")) {
+                                    noon_action_brawl.setState("acquiesce");
+                                }
+                                noon_action_rob = false;
+                                noon_action_change_seat = false;
+                                mDatabase.child("lobby").child(lobbyNumber).child("brawl").setValue(noon_action_brawl);
+                            }
+                        });
+                        Dialog t = adb.show();
+                        t.setCanceledOnTouchOutside(false);
                     }
-                    if (noon_action_rob){
-                        noon_action_brawl.setGoal("rob");
+                    else{
+                        Brawl noon_action_brawl = new Brawl();
+                        attacker.clear();
+                        defender.clear();
+                        if (noon_action_change_seat) {
+                            noon_action_brawl.setGoal("change");
+                        }
+                        if (noon_action_rob) {
+                            noon_action_brawl.setGoal("rob");
+                        }
+                        noon_action_brawl.setState("waitForReaction");
+                        attacker.add(new BrawlMember(lobby.getMembers().get(player_name), false));
+                        defender.add(new BrawlMember(lobby.getMembers().get(receiver), false));
+                        noon_action_brawl.setAttacker(attacker);
+                        noon_action_brawl.setDefender(defender);
+                        if (!defender.get(0).getMember().getState().getStatus().equals("alive")) {
+                            noon_action_brawl.setState("acquiesce");
+                        }
+                        noon_action_rob = false;
+                        noon_action_change_seat = false;
+                        mDatabase.child("lobby").child(lobbyNumber).child("brawl").setValue(noon_action_brawl);
                     }
-                    noon_action_brawl.setState("waitForReaction");
-                    attacker.add(new BrawlMember(lobby.getMembers().get(player_name), false));
-                    defender.add(new BrawlMember(lobby.getMembers().get(receiver), false));
-                    noon_action_brawl.setAttacker(attacker);
-                    noon_action_brawl.setDefender(defender);
-                    if (!defender.get(0).getMember().getState().getStatus().equals("alive")){
-                        noon_action_brawl.setState("acquiesce");
-                    }
-                    noon_action_rob = false;
-                    noon_action_change_seat = false;
-                    mDatabase.child("lobby").child(lobbyNumber).child("brawl").setValue(noon_action_brawl);
                 }
                 if (give_zhilet_clickable){
+                    boolean openZhilet = false;
+                    boolean closeZhilet = false;
+                    Card z = new Card();
                     if (lobby.getMembers().get(player_name).getTreasures().getOpen()!=null) {
                         for (Card q : lobby.getMembers().get(player_name).getTreasures().getOpen()) {
                             if (q.getName().equals("Спасательный жилет")) {
-                                lobby.getMembers().get(receiver).getTreasures().getOpen().add(q);
-                                lobby.getMembers().get(player_name).getTreasures().getOpen().remove(q);
+                                openZhilet = true;
+                                z = q;
+                                break;
                             }
                         }
+                    }
+                    if (openZhilet){
+                        lobby.getMembers().get(receiver).getTreasures().getOpen().add(z);
+                        lobby.getMembers().get(player_name).getTreasures().getOpen().remove(z);
                     }
                     if (lobby.getMembers().get(player_name).getTreasures().getClose()!=null) {
                         for (Card q : lobby.getMembers().get(player_name).getTreasures().getClose()) {
                             if (q.getName().equals("Спасательный жилет")) {
-                                lobby.getMembers().get(receiver).getTreasures().getOpen().add(q);
-                                lobby.getMembers().get(player_name).getTreasures().getClose().remove(q);
+                                closeZhilet = true;
+                                z = q;
+                                break;
                             }
                         }
+                    }
+                    if (closeZhilet){
+                        lobby.getMembers().get(receiver).getTreasures().getOpen().add(z);
+                        lobby.getMembers().get(player_name).getTreasures().getClose().remove(z);
                     }
                     give_zhilet_clickable = false;
                     Button endTurn = findViewById(R.id.end_turn_button);
@@ -535,7 +592,6 @@ public class MainGame extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 lobby = snapshot.getValue(Lobby.class);
                 if (!(null == lobby)) {
-                    System.out.println(lobby.getGameState());
                     Integer gulls = lobby.getGull();
                     gulls = Math.min(gulls, 4);
                     ((ImageView)MainGame.this.findViewById(R.id.gulls_main)).setImageResource(getResId("gulls"+gulls, R.drawable.class));
@@ -1010,8 +1066,6 @@ public class MainGame extends AppCompatActivity {
                                 }
                             });
                         }else{
-                            System.out.println(name_with_sharp);
-                            System.out.println(orderedByTurn.get(lobby.getTurn()-1).getName());
                             if (orderedByTurn.get(lobby.getTurn()-1).getName().equals(name_with_sharp)) {
                                 nextMove("trade");
                                 return;
@@ -1500,7 +1554,6 @@ public class MainGame extends AppCompatActivity {
                                             robCloseButton.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View view) {
-                                                    System.out.println(robbedMember.getTreasures().getClose());
                                                     if (robbedMember.getTreasures().getClose() != null){
                                                         if (robbedMember.getTreasures().getClose().size()>0) {
                                                             Card q = robbedMember.getTreasures().getClose().get(random_method.nextInt(robbedMember.getTreasures().getClose().size()));
@@ -1611,7 +1664,6 @@ public class MainGame extends AppCompatActivity {
                                         break;
                                     }
                                 }
-                            System.out.println(chooser);
                             if (listOfNavCards.size()==0) {
                                 if (lobby.getChosenNavCards() != null) {
                                     for (NavCard q : lobby.getChosenNavCards()) {
@@ -1844,7 +1896,6 @@ public class MainGame extends AppCompatActivity {
                                             }
                                         }
                                     }
-                                    System.out.println(!(haveCloseZhilet || haveOpenZhilet));
                                     if (!(haveCloseZhilet || haveOpenZhilet)) {
                                         nextMove("evening_zhilet");
                                         return;
@@ -1912,10 +1963,12 @@ public class MainGame extends AppCompatActivity {
                             NavCard g = lobby.getEveningNavCard();
                             for (Member q: lobby.getMembers().values()) {
                                 boolean haveZontik = false;
-                                for (Card m : q.getTreasures().getOpen()) {
-                                    if (m.getName().equals("Зонтик")) {
-                                        haveZontik = true;
-                                        break;
+                                if (q.getTreasures().getOpen()!=null) {
+                                    for (Card m : q.getTreasures().getOpen()) {
+                                        if (m.getName().equals("Зонтик")) {
+                                            haveZontik = true;
+                                            break;
+                                        }
                                     }
                                 }
                                 if (!haveZontik) {
