@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -91,6 +93,7 @@ public class MainGame extends AppCompatActivity {
     TextView yourTradeNick;
     TextView theirTradeNick;
     TextView theirsCloseText;
+    ValueEventListener mainListener;
     ArrayList<PullItem> listOfNavCards;
     boolean shown = false;
     boolean zhiletCalculated = false;
@@ -524,7 +527,7 @@ public class MainGame extends AppCompatActivity {
             }
         });
 
-        mDatabase.child("lobby").child(lobbyNumber).addValueEventListener(new ValueEventListener() {
+        mainListener = new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -1155,6 +1158,9 @@ public class MainGame extends AppCompatActivity {
                                                         NavCard q = lobby.getNavCardsDeck().remove(0);
                                                         lobby.getNavCardsDeck().add(q);
                                                         lobby.setGull(lobby.getGull()+q.getGull());
+                                                        if (lobby.getGull()==-1){
+                                                            lobby.setGull(0);
+                                                        }
                                                     }
                                                     specialCardDialog.dismiss();
                                                         for (Card q: lobby.getMembers().get(player_name).getTreasures().getClose()){
@@ -1657,6 +1663,9 @@ public class MainGame extends AppCompatActivity {
                     if (lobby.getGameState().equals("evening_gulls")){
                         if ((lobby.getHostName()+" "+lobby.getHostId()).equals(player_name)){
                             lobby.setGull(lobby.getGull()+lobby.getEveningNavCard().getGull());
+                            if (lobby.getGull()==-1){
+                                lobby.setGull(0);
+                            }
                             nextMove("evening_gulls");
                         }
                     }
@@ -1855,20 +1864,29 @@ public class MainGame extends AppCompatActivity {
                                     q.getState().setOverboard(0);
                                 }
                             }
-                            for (Member q: lobby.getMembers().values()){
+                            for (Member q: lobby.getMembers().values()) {
                                 NavCard g = lobby.getEveningNavCard();
-                                if (g.getFighters()==1){
-                                    if (q.getState().getBrawled().equals(1)){
-                                        q.getState().setThirst(q.getState().getThirst()+1);
+                                boolean haveZontik = false;
+                                for (Card m : q.getTreasures().getOpen()) {
+                                    if (m.getName().equals("Зонтик")) {
+                                        haveZontik = true;
+                                        break;
                                     }
                                 }
-                                if (g.getWorkers()==1){
-                                    if (q.getState().getPulled().equals(1)){
-                                        q.getState().setThirst(q.getState().getThirst()+1);
+                                if (!haveZontik) {
+                                    if (g.getFighters() == 1) {
+                                        if (q.getState().getBrawled().equals(1)) {
+                                            q.getState().setThirst(q.getState().getThirst() + 1);
+                                        }
                                     }
-                                }
-                                if (g.getThirst().contains(q.getStats().getRole())){
-                                    q.getState().setThirst(q.getState().getThirst()+1);
+                                    if (g.getWorkers() == 1) {
+                                        if (q.getState().getPulled().equals(1)) {
+                                            q.getState().setThirst(q.getState().getThirst() + 1);
+                                        }
+                                    }
+                                    if (g.getThirst().contains(q.getStats().getRole())) {
+                                        q.getState().setThirst(q.getState().getThirst() + 1);
+                                    }
                                 }
                             }
                             nextMove("evening_overboard_damage");
@@ -1897,8 +1915,6 @@ public class MainGame extends AppCompatActivity {
                         }
                     }
                     if (lobby.getGameState().equals("evening_final")){
-
-
                         if ((lobby.getHostName() + " " + lobby.getHostId()).equals(player_name)) {
                             for (Member q : lobby.getMembers().values()) {
                                 q.getState().setInjuries(q.getState().getInjuries() + q.getState().getThirst());
@@ -1967,18 +1983,20 @@ public class MainGame extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
-
+        };
+        mDatabase.child("lobby").child(lobbyNumber).addValueEventListener(mainListener);
     }
 
     private void finishGame(){
+        mDatabase.child("lobby").child(lobbyNumber).removeEventListener(mainListener);
         Toast.makeText(MainGame.this, "Игра окончена", Toast.LENGTH_LONG).show();
         fianlShowed = true;
-        if ((lobby.getHostName()+" "+lobby.getHostId()).equals(player_name)){
-            lobby.setGameState("final");
-
-            mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
-        }
+        Gson gson = new Gson();
+        String lobbyJson = gson.toJson(lobby);
+        Intent toFinal = new Intent(MainGame.this, FianlOfGame.class);
+        toFinal.putExtra("lobby", lobbyJson);
+        finish();
+        startActivity(toFinal);
     }
 
 
