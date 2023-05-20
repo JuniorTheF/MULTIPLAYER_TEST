@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_height="match_parent">
+    <TextView
+        android:textFontWeight="999"
+        android:textSize="25sp"
+        android:fontFamily="@font/wiguru"
+        android:textColor="@color/text"
+        android:padding="15dp"
+        android:background="@drawable/text_background_less_radius"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Выберите предмет"
+        android:layout_marginTop="10dp"
+        />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/veslo"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:src="@drawable/veslo"/>
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/nozh"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:src="@drawable/nozh"/>
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/dubinka"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:src="@drawable/dubinka"/>
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/garpun"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:src="@drawable/garpun"/>
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/special_pistolet"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:src="@drawable/pistolet"/>
+
+    </LinearLayout>
+
+</LinearLayout>

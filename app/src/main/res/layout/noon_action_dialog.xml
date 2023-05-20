@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_height="match_parent">
+    <TextView
+        android:textFontWeight="999"
+        android:textSize="25sp"
+        android:fontFamily="@font/wiguru"
+        android:textColor="@color/text"
+        android:padding="15dp"
+        android:background="@drawable/text_background_less_radius"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Выберите действие"
+        android:layout_marginTop="10dp"
+        />
+
+    <TextView
+        android:textFontWeight="999"
+        android:id="@+id/action_gresti"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:background="@drawable/game_bg"
+        android:textSize="25sp"
+        android:fontFamily="@font/wiguru"
+        android:textColor="@color/toolbar"
+        android:text="Грести"
+        android:paddingRight="40dp"
+        android:paddingLeft="40dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:layout_width="300dp"
+        android:layout_height="40dp"/>
+
+    <TextView
+        android:textFontWeight="999"
+        android:id="@+id/action_rob"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:background="@drawable/game_bg"
+        android:textSize="25sp"
+        android:fontFamily="@font/wiguru"
+        android:textColor="@color/toolbar"
+        android:text="Грабить"
+        android:paddingRight="40dp"
+        android:paddingLeft="40dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:layout_width="300dp"
+        android:layout_height="40dp"/>
+
+    <TextView
+        android:textFontWeight="999"
+        android:id="@+id/action_fight"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:background="@drawable/game_bg"
+        android:textSize="25sp"
+        android:fontFamily="@font/wiguru"
+        android:textColor="@color/toolbar"
+        android:text="Поменяться местами"
+        android:paddingRight="40dp"
+        android:paddingLeft="40dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:layout_width="300dp"
+        android:layout_height="40dp"/>
+
+    <TextView
+        android:textFontWeight="999"
+        android:id="@+id/action_special_card"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:background="@drawable/game_bg"
+        android:textSize="25sp"
+        android:fontFamily="@font/wiguru"
+        android:textColor="@color/text"
+        android:text="Применить спецкарту"
+        android:paddingRight="40dp"
+        android:paddingLeft="40dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:layout_width="300dp"
+        android:layout_height="40dp"/>
+    <TextView
+        android:textFontWeight="999"
+        android:id="@+id/action_skip"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:background="@drawable/game_bg"
+        android:textSize="25sp"
+        android:fontFamily="@font/wiguru"
+        android:textColor="@color/toolbar"
+        android:text="Пропустить ход"
+        android:paddingRight="40dp"
+        android:paddingLeft="40dp"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:layout_width="300dp"
+        android:layout_height="40dp"/>
+
+</LinearLayout>

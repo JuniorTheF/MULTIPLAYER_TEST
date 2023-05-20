@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="110dp"
+    android:layout_height="150dp"
+    android:orientation="vertical"
+    android:layout_weight="1"
+    android:gravity="center">
+    <TextView
+        android:gravity="center"
+        android:fontFamily="@font/wiguru"
+        android:textSize="16sp"
+        android:text="xdd#1557\nжив"
+        android:textColor="@color/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/hero_nick"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraint_hero"
+        android:background="@drawable/shket_pic"
+        android:layout_width="110dp"
+        android:layout_height="110dp">
+
+        <TextView
+            android:id="@+id/thirst"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/thirst"
+            android:gravity="center"
+            android:shadowColor="@color/black"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"
+            android:text="3"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/power"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/zhilet"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/zhilet_mini"
+            app:layout_constraintBottom_toTopOf="@+id/trauma"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+        <ImageView
+            android:id="@+id/zont"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/zontik_mini"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/work_tiredness" />
+
+        <TextView
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/hero_nick2"/>
+
+        <ImageView
+            android:id="@+id/fight_tiredness"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/fight_tiredness"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/work_tiredness"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/work_tiredness"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:background="@drawable/power"
+            android:shadowDy="0"
+            android:shadowDx="0"
+            android:shadowColor="@color/black"
+            android:shadowRadius="5"
+            android:textColor="@color/white"
+            android:text="3"
+            android:textSize="14sp"
+            android:id="@+id/power"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:textSize="14sp"
+            android:id="@+id/trauma"
+            android:textColor="@color/black"
+            android:text="3"
+            android:gravity="center_horizontal"
+            android:background="@drawable/trauma"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/fight_tiredness"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+</LinearLayout>

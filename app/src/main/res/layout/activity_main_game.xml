@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gamebg"
+    android:orientation="horizontal"
+    tools:context=".MainGame">
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/gulls_main"
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:src="@drawable/gulls4" />
+    </LinearLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_onboardheroes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gameState" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/wiguru"
+        android:text="Ваш персонаж"
+        android:textColor="@color/black"
+        android:textFontWeight="600"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/hero_tooltip"
+        app:layout_constraintEnd_toEndOf="@+id/hero_tooltip"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintStart_toStartOf="@+id/hero_tooltip" />
+
+    <ImageView
+        android:id="@+id/hero_tooltip"
+        android:layout_width="205dp"
+        android:layout_height="75dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/miledi_bonus" />
+
+    <TextView
+        android:id="@+id/gameState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="фаза 33 /т ходит чел#666"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/gulls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/hero_firend"
+        android:layout_width="110dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/hero_enemy"
+        app:srcCompat="@drawable/drug_botsman" />
+
+    <ImageView
+        android:id="@+id/hero_enemy"
+        android:layout_width="110dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/player_treasures"
+        app:srcCompat="@drawable/vrag_shket" />
+
+    <ImageView
+        android:id="@+id/player_treasures"
+        android:layout_width="110dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/hero_tooltip"
+        app:layout_constraintStart_toEndOf="@+id/hero_tooltip"
+        app:srcCompat="@drawable/back_supplies" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/nav_card_back"
+        android:layout_width="94dp"
+        android:layout_height="120dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/n3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/hero_firend">
+
+        <ImageView
+            android:id="@+id/akuli"
+            android:layout_width="47dp"
+            android:layout_height="57dp"
+            android:src="@drawable/akuli_mini"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/navcard_count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/wiguru"
+            android:text="5"
+            android:textColor="@color/black"
+            android:textFontWeight="999"
+            android:textSize="50sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.505"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <Button
+        android:id="@+id/end_turn_button"
+        android:enabled="false"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="2dp"
+        android:background="@drawable/button_backgound_finish_turn"
+        android:fontFamily="@font/wiguru"
+        android:padding="10dp"
+        android:text="Закончить\nход"
+        android:textColor="@color/text"
+        android:textFontWeight="999"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_height="match_parent">
+    <TextView
+        android:textFontWeight="999"
+        android:textSize="25sp"
+        android:fontFamily="@font/wiguru"
+        android:textColor="@color/text"
+        android:padding="15dp"
+        android:background="@drawable/text_background_less_radius"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Выберите предмет"
+        android:layout_marginTop="10dp"
+        />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/special_aptechka"
+            android:visibility="gone"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:src="@drawable/aptechka"/>
+        <ImageView
+            android:id="@+id/special_zontik"
+            android:visibility="gone"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:src="@drawable/zontik"/>
+        <ImageView
+            android:id="@+id/special_pistolet"
+            android:visibility="gone"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:src="@drawable/pistolet"/>
+    </LinearLayout>
+
+</LinearLayout>

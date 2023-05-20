@@ -7,4 +7,19 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="background">#13bcfb</color>
+    <color name="button_login">#f2f294</color>
+    <color name="text">#514d4c</color>
+    <color name="lobby_create">#3eaa3b</color>
+    <color name="lobby_create_pressed">#89AC76</color>
+    <color name="hint">#81817e </color>
+    <color name="toolbar">#FFFFB8</color>
+    <color name="pink">#FF668B</color>
+    <color name="brown">#851F00</color>
+    <color name="transparent">#00000000</color>
+    <color name="agree">#41AA00</color>
+    <color name="donotagree">#CA0000</color>
+    <color name="button_pressed">#FFDEAD</color>
+
+
 </resources>
