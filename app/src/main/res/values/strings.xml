@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MULTIPLAYER_TEST</string>
+    <string name="app_name">За Бортом</string>
 
     <string-array name="numberOfPlayers">
         <item>4</item>
