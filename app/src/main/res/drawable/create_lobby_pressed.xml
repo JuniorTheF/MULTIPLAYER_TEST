@@ -2,4 +2,5 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval" >
     <solid android:color="@color/lobby_create_pressed"  />
     <padding android:bottom="20dp" android:top="20dp" android:left="20dp" android:right="20dp"/>
+    <stroke android:color="@color/black" android:width="2dp"/>
 </shape>

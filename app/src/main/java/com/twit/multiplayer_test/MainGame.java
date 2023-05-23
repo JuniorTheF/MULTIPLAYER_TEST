@@ -2028,6 +2028,9 @@ public class MainGame extends AppCompatActivity {
                                         }
                                     });
                                 }else {
+                                    Button endTurn = findViewById(R.id.end_turn_button);
+                                    endTurn.setEnabled(true);
+                                    endTurn.setOnClickListener(null);
                                     nextMove("evening_thirst");
                                     return;
                                 }
@@ -2142,50 +2145,51 @@ public class MainGame extends AppCompatActivity {
     }
 
     public void nextMove(String curr_stage){
-        if (lobby.getTurn().equals(orderedByTurn.size()) || curr_stage.equals("evening_choose_card") || curr_stage.equals("evening_gulls") || curr_stage.equals("evening_overboard") || curr_stage.equals("evening_shark_damage") || curr_stage.equals("evening_damage_overboard") || curr_stage.equals("evening_final")){
-            if(curr_stage.equals("morning")){
-                lobby.setGameState("trade");
+        if (lobby.getGameState().equals(curr_stage)) {
+            if (lobby.getTurn().equals(orderedByTurn.size()) || curr_stage.equals("evening_choose_card") || curr_stage.equals("evening_gulls") || curr_stage.equals("evening_overboard") || curr_stage.equals("evening_shark_damage") || curr_stage.equals("evening_damage_overboard") || curr_stage.equals("evening_final")) {
+                if (curr_stage.equals("morning")) {
+                    lobby.setGameState("trade");
+                }
+                if (curr_stage.equals("trade")) {
+                    lobby.setGameState("noon");
+                }
+                if (curr_stage.equals("noon")) {
+                    lobby.setGameState("evening_choose_card");
+                }
+                if (curr_stage.equals("evening_choose_card")) {
+                    lobby.setGameState("evening_gulls");
+                }
+                if (curr_stage.equals("evening_gulls")) {
+                    lobby.setGameState("evening_overboard");
+                }
+                if (curr_stage.equals("evening_overboard")) {
+                    lobby.setGameState("evening_bait");
+                }
+                if (curr_stage.equals("evening_bait")) {
+                    lobby.setGameState("evening_shark_damage");
+                }
+                if (curr_stage.equals("evening_shark_damage")) {
+                    lobby.setGameState("evening_zhilet");
+                }
+                if (curr_stage.equals("evening_zhilet")) {
+                    lobby.setGameState("evening_damage_overboard");
+                }
+                if (curr_stage.equals("evening_damage_overboard")) {
+                    lobby.setGameState("evening_thirst");
+                }
+                if (curr_stage.equals("evening_thirst")) {
+                    lobby.setGameState("evening_final");
+                }
+                if (curr_stage.equals("evening_final")) {
+                    lobby.setGameState("morning");
+                }
+                lobby.setTurn(1);
+            } else {
+                lobby.setTurn(lobby.getTurn() + 1);
             }
-            if(curr_stage.equals("trade")){
-                lobby.setGameState("noon");
-            }
-            if (curr_stage.equals("noon")){
-                lobby.setGameState("evening_choose_card");
-            }
-            if (curr_stage.equals("evening_choose_card")){
-                lobby.setGameState("evening_gulls");
-            }
-            if (curr_stage.equals("evening_gulls")){
-                lobby.setGameState("evening_overboard");
-            }
-            if (curr_stage.equals("evening_overboard")){
-                lobby.setGameState("evening_bait");
-            }
-            if (curr_stage.equals("evening_bait")){
-                lobby.setGameState("evening_shark_damage");
-            }
-            if (curr_stage.equals("evening_shark_damage")){
-                lobby.setGameState("evening_zhilet");
-            }
-            if (curr_stage.equals("evening_zhilet")){
-                lobby.setGameState("evening_damage_overboard");
-            }
-            if (curr_stage.equals("evening_damage_overboard")){
-                lobby.setGameState("evening_thirst");
-            }
-            if (curr_stage.equals("evening_thirst")){
-                lobby.setGameState("evening_final");
-            }
-            if (curr_stage.equals("evening_final")){
-                lobby.setGameState("morning");
-            }
-            lobby.setTurn(1);
+            brawl_showed = false;
+            mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
         }
-        else {
-            lobby.setTurn(lobby.getTurn() + 1);
-        }
-        brawl_showed = false;
-        mDatabase.child("lobby").child(lobbyNumber).setValue(lobby);
     }
 
     private Integer calculatePower(BrawlMember brawlMember){

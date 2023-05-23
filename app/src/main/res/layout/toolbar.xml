@@ -9,31 +9,43 @@
 
     <TableRow android:orientation="vertical"
         android:gravity="fill_horizontal|center_vertical">
-    <TextView
-        android:minWidth="2000dp"
-        android:layout_weight="2000"
-        android:padding="0dp"
-        android:id="@+id/toolbar_textview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="left"
-        android:textSize="20sp"
-        android:text="qq"
-        android:textColor="@color/text" />
+        <TextView
+            android:minWidth="2000dp"
+            android:layout_weight="2000"
+            android:padding="0dp"
+            android:id="@+id/toolbar_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:textSize="20sp"
+            android:text="qq"
+            android:textColor="@color/text" />
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/toolbar_help_button"
+            android:padding="0dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/rules_button"
+            android:textColor="@color/text"
+            android:textSize="33sp" />
 
-    <Button
-        android:layout_weight="1"
-        android:id="@+id/toolbar_button"
-        android:padding="0dp"
-        android:gravity="center"
-        android:layout_gravity="center"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginRight="5dp"
-        android:background="@drawable/button_number_of_players"
-        android:text="+"
-        android:textColor="@color/text"
-        android:textSize="33sp" />
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/toolbar_button"
+            android:padding="0dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/button_number_of_players"
+            android:text="+"
+            android:textColor="@color/black"
+            android:textSize="33sp" />
     </TableRow>
 
 </TableLayout>

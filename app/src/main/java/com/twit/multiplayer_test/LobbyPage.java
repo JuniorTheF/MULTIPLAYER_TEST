@@ -8,20 +8,29 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -29,6 +38,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -42,6 +53,8 @@ public class LobbyPage extends AppCompatActivity {
     private DatabaseReference mDatabase;
     Integer numberOfPlayers = 4;
     String lobbyNumber;
+    Dialog dialog;
+    AlertDialog.Builder adb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +76,6 @@ public class LobbyPage extends AppCompatActivity {
                         }
                     }
                 });
-
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -75,6 +87,37 @@ public class LobbyPage extends AppCompatActivity {
         getSupportActionBar().setCustomView(R.layout.toolbar);
         TextView tbTextView = tb.findViewById(R.id.toolbar_textview);
         Button tbButton = tb.findViewById(R.id.toolbar_button);
+        Button helpButton = tb.findViewById(R.id.toolbar_help_button);
+        LinearLayout ll = new LinearLayout(LobbyPage.this);
+        ll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        ll.setOrientation(LinearLayout.VERTICAL);
+        TextView tv = new TextView(LobbyPage.this);
+        tv.setPadding(15,15,0,0);
+        tv.setTextSize(20);
+        tv.setMovementMethod(LinkMovementMethod.getInstance());
+        tv.setText(Html.fromHtml("<a href=https://tesera.ru/images/items/1533001/Rules-za-bortom-vtoroye-izdaniye-rus.pdf>Правила</a>"));
+        TextView tv2 = new TextView(LobbyPage.this);
+        tv2.setPadding(15,15,0,0);
+        tv2.setTextSize(16);
+        tv2.setText("Особенности издания: игровое взаимодействие происходит через всплывающие диалоги и нажатия на ники и элементы интерфейса");
+        ll.addView(tv);
+        ll.addView(tv2);
+        adb = new AlertDialog.Builder(LobbyPage.this);
+        adb.setView(ll)
+                .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialog.dismiss();
+                    }
+                });
+        dialog = adb.create();
+
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.show();
+            }
+        });
 
         SharedPreferences.Editor spe = sp.edit();
         tbTextView.setText(sp.getString("userLogin", null)+"#"+sp.getString("userId", null));
