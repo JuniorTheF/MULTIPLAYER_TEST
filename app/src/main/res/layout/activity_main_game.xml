@@ -65,6 +65,10 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="фаза 33 /т ходит чел#666"
+        android:fontFamily="@font/wiguru"
+        android:textSize="20sp"
+        android:textFontWeight="999"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

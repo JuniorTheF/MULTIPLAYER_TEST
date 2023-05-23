@@ -11,7 +11,8 @@
         android:fontFamily="@font/wiguru"
         android:textSize="16sp"
         android:text="xdd#1557\nжив"
-        android:textColor="@color/text"
+        android:layout_weight="850"
+        android:textColor="@color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/hero_nick"/>
