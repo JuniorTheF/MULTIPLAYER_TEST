@@ -2061,6 +2061,9 @@ public class MainGame extends AppCompatActivity {
                             nextMove("evening_final");
                             return;
                         }
+                        Button endTurn = findViewById(R.id.end_turn_button);
+                        endTurn.setEnabled(true);
+                        endTurn.setOnClickListener(null);
                     }
 
 
