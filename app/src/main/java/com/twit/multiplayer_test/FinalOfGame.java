@@ -43,6 +43,7 @@ public class FinalOfGame extends AppCompatActivity {
         Gson gson = new Gson();
         lobby = gson.fromJson(getIntent().getStringExtra("lobby"), Lobby.class);
         members = new ArrayList<>(lobby.getMembers().values());
+        results = new ArrayList<>();
         setResults();
         RecyclerView finalRv = findViewById(R.id.final_items_rv);
         finalAdapter = new FinalAdapter(members, results);

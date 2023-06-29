@@ -1242,6 +1242,7 @@ public class MainGame extends AppCompatActivity {
                                                 @Override
                                                 public void onClick(View view) {
                                                     specialCardDialog.dismiss();
+                                                    Toast.makeText(MainGame.this, "Выберите кому хотите дать зонтик", Toast.LENGTH_SHORT).show();
                                                     special_action_umbrella_nick_clickable = true;
                                                 }
                                             });
@@ -2031,7 +2032,7 @@ public class MainGame extends AppCompatActivity {
                                     });
                                 }else {
                                     Button endTurn = findViewById(R.id.end_turn_button);
-                                    endTurn.setEnabled(true);
+                                    endTurn.setEnabled(false);
                                     endTurn.setOnClickListener(null);
                                     nextMove("evening_thirst");
                                     return;
