@@ -1658,6 +1658,8 @@ public class MainGame extends AppCompatActivity {
                             canJoin = true;
                             actionShown = false;
                             brawl_showed = false;
+                            noon_action_change_seat = false;
+                            noon_action_rob = false;
                                 for (int n = orderedBySeat.size() - 1; n >= 0; n--) {
                                     if (orderedBySeat.get(n).getState().getStatus().equals("alive")) {
                                         chooser = orderedBySeat.get(n);
@@ -2062,7 +2064,7 @@ public class MainGame extends AppCompatActivity {
                             return;
                         }
                         Button endTurn = findViewById(R.id.end_turn_button);
-                        endTurn.setEnabled(true);
+                        endTurn.setEnabled(false);
                         endTurn.setOnClickListener(null);
                     }
 
